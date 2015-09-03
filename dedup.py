@@ -33,9 +33,9 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
                             time1 = os.path.getmtime(path1)
                             time2 = os.path.getmtime(path2)
 
-                            print "Files are in the same directory: deleting oldest"
+                            print "Files are in the same directory: deleting newest"
 
-                            if time1 < time2:
+                            if time1 > time2:
                                 print "Deleting:\n  [1] %s" % path1
 
                                 try:
@@ -46,14 +46,14 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
                                 hashes[file_id] = path2
 
                             else:
-                                print "Deleting:\n  [1] %s" % path1
+                                print "Deleting:\n  [2] %s" % path2
 
                                 try:
-                                    os.remove(path1)
+                                    os.remove(path2)
                                 except:
-                                    print "Could not find file:\n  %s\nContinuing..." % path1
+                                    print "Could not find file:\n  %s\nContinuing..." % path2
 
-                                hashes[file_id] = path2
+                                hashes[file_id] = path1
 
                         else:
                             selection = raw_input("Which to delete? [1/2]> ")
