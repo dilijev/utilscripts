@@ -15,7 +15,7 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             print "Checking directory: %s" % dirpath
-        
+
             for filename in filenames:
                 full_path = os.path.join(dirpath, filename)
                 hashobj = hash()
@@ -26,52 +26,55 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
                 if duplicate:
                     print "\nDuplicate found:\n  [1] %s\n  [2] %s" % (full_path, duplicate)
                     if delete:
-                        if os.path.dirname(full_path) == os.path.dirname(duplicate):
-                            time1 = os.path.getmtime(full_path)
-                            time2 = os.path.getmtime(duplicate)
-                            
+                        path1 = full_path
+                        path2 = duplicate
+
+                        if os.path.dirname(path1) == os.path.dirname(path2):
+                            time1 = os.path.getmtime(path1)
+                            time2 = os.path.getmtime(path2)
+
                             print "Files are in the same directory: deleting oldest"
-                            
+
                             if time1 < time2:
-                                print "Deleting:\n  [1] %s" % full_path
-                                
-                                try:
-                                    os.remove(full_path)
-                                except:
-                                    print "Could not find file:\n  %s\nContinuing..." % full_path
+                                print "Deleting:\n  [1] %s" % path1
 
-                                hashes[file_id] = duplicate
-                                
+                                try:
+                                    os.remove(path1)
+                                except:
+                                    print "Could not find file:\n  %s\nContinuing..." % path1
+
+                                hashes[file_id] = path2
+
                             else:
-                                print "Deleting:\n  [1] %s" % full_path
+                                print "Deleting:\n  [1] %s" % path1
 
                                 try:
-                                    os.remove(full_path)
+                                    os.remove(path1)
                                 except:
-                                    print "Could not find file:\n  %s\nContinuing..." % full_path
+                                    print "Could not find file:\n  %s\nContinuing..." % path1
 
-                                hashes[file_id] = duplicate
-                    
+                                hashes[file_id] = path2
+
                         else:
                             selection = raw_input("Which to delete? [1/2]> ")
 
                             if selection == "1":
-                                print "Deleting:\n  [1] %s" % full_path
+                                print "Deleting:\n  [1] %s" % path1
 
                                 try:
-                                    os.remove(full_path)
+                                    os.remove(path1)
                                 except:
-                                    print "Could not find file:\n  %s\nContinuing..." % full_path
+                                    print "Could not find file:\n  %s\nContinuing..." % path1
 
-                                hashes[file_id] = duplicate
+                                hashes[file_id] = path2
 
                             elif selection == "2":
-                                print "Deleting:\n  [2] %s" % duplicate
+                                print "Deleting:\n  [2] %s" % path2
 
                                 try:
-                                    os.remove(duplicate)
+                                    os.remove(path2)
                                 except:
-                                    print "Could not find file:\n  %s\nContinuing..." % duplicate
+                                    print "Could not find file:\n  %s\nContinuing..." % path2
 
                             else:
                                 print "Not deleting either image"
