@@ -4,14 +4,18 @@ import sys
 
 # TODO improve arg parsing (use a library)
 renames = sys.argv[1].strip()
-force = sys.argv[2].strip() == '-f'
 
-if force:
-    print("-f detected: will overwrite files")
+force = False
+if len(sys.argv) > 2:
+    force = sys.argv[2].strip() == '-f'
+    if force:
+        print("-f detected: will overwrite files")
 
 with open(renames, "r") as f:
     while True:
         x = f.readline()
+
+        # TODO allow for empty lines in the input file -- only stop at end of file
         if x is None or x.strip() == '': break
 
         args = x.split(',')
