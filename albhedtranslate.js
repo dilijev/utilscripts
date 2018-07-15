@@ -1,7 +1,26 @@
 "use strict"
 
-let albhed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()'
-let english = 'epstiwknuvgclrybxhmdofzqajEPSTIWKNUVGCLRYBXHMDOFZQAJ!@#$%^&*()1234567890'
+let albhed = [
+    'abcdefghijklmnopqrstuvwxyz',
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+
+    '1234567890',
+    '!@#$%^&*()',
+
+    '_+{}|:"<>?',
+    '-=[]\\;\',./',
+].join('')
+
+let english = [
+    'epstiwknuvgclrybxhmdofzqaj',
+    'EPSTIWKNUVGCLRYBXHMDOFZQAJ',
+
+    '!@#$%^&*()',
+    '1234567890',
+
+    '-=[]\\;\',./',
+    '_+{}|:"<>?',
+].join('')
 
 function usage() {
     console.log(`
