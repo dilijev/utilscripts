@@ -3,6 +3,9 @@ import sys
 import os
 import hashlib
 
+try: input = raw_input
+except NameError: pass
+
 # compatible with python 2 and python 3
 
 def chunk_reader(fobj, chunk_size=1024):
@@ -59,7 +62,7 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
                                 hashes[file_id] = path1
 
                         else:
-                            selection = raw_input("Which to delete? [1/2]> ")
+                            selection = input("Which to delete? [1/2]> ")
 
                             if selection == "1":
                                 print("Deleting:\n  [1] %s" % path1)
