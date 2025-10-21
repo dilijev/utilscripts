@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+"""
+git-backup-branch
+
+Create a backup copy of a branch with an incrementing ordinal suffix
+(e.g. user/me/wip.0, user/me/wip.1, ...) or with a timestamp suffix.
+Optionally push the backup to a remote.
+
+Usage (examples):
+  # default: backup current branch as ordinal and print created name
+  git backup-branch
+
+  # backup specified branch, push to origin
+  git backup-branch user/me/wip --push
+
+  # use timestamp instead of ordinal
+  git backup-branch --timestamp --push
+
+Install:
+  chmod +x git-backup-branch
+  mv git-backup-branch /usr/local/bin/   # or any PATH dir
+
+As a git subcommand this will be invokable as: git backup-branch
+"""
+from __future__ import annotations
+import argparse
+import subprocess
+import sys
+import re
+from datetime import datetime, timezone
+from typing import List, Optional
+
+
+def run_git(args: List[str], capture: bool = True) -> str:
+    cmd = ["git"] + args
+    if capture:
+        p = subprocess.run(cmd, check=False, stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE, text=True)
+        if p.returncode != 0:
+            raise RuntimeError(f"git {' '.join(args)} failed: {p.stderr.strip()}")
+        return p.stdout.strip()
+    else:
+        p = subprocess.run(cmd)
+        if p.returncode != 0:
+            raise RuntimeError(f"git {' '.join(args)} failed (exit {p.returncode})")
+        return ""
+
+
+def get_current_branch() -> str:
+    out = run_git(["rev-parse", "--abbrev-ref", "HEAD"])
+    if out == "HEAD":
+        raise RuntimeError("Detached HEAD; please pass the branch name explicitly.")
+    return out
+
+
+def ensure_branch_exists(branch: str) -> None:
+    try:
+        run_git(["rev-parse", "--verify", f"refs/heads/{branch}"])
+    except RuntimeError:
+        # maybe it's a remote branch like origin/foo; allow checking refs/remotes
+        try:
+            run_git(["rev-parse", "--verify", f"refs/remotes/{branch}"])
+        except RuntimeError:
+            raise RuntimeError(f"Branch '{branch}' not found (local or remote)")
+
+
+def fetch_remote(remote: str) -> None:
+    # fetch remote branches to ensure up-to-date refs used for numbering
+    run_git(["fetch", remote, "--prune"])
+
+
+def list_local_branches() -> List[str]:
+    out = run_git(["for-each-ref", "--format=%(refname:short)", "refs/heads"])
+    return [l for l in out.splitlines() if l]
+
+
+def list_remote_branches(remote: str) -> List[str]:
+    pattern = f"refs/remotes/{remote}"
+    out = run_git(["for-each-ref", "--format=%(refname:short)", f"refs/remotes/{remote}"])
+    return [l for l in out.splitlines() if l]
+
+
+def next_ordinal(base: str, locals_: List[str], remotes_: List[str]) -> int:
+    pattern = re.compile(rf"^{re.escape(base)}\.(\d+)$")
+    max_n = -1
+    for name in locals_ + remotes_:
+        m = pattern.match(name)
+        if m:
+            try:
+                n = int(m.group(1))
+            except ValueError:
+                continue
+            if n > max_n:
+                max_n = n
+    return max_n + 1
+
+
+def iso_timestamp() -> str:
+    # compact UTC timestamp safe for branch names
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def create_backup_branch(source: str, backup_name: str) -> None:
+    # Create new branch pointing at same commit as source
+    # If source is a remote branch (e.g., origin/foo), resolve to its HEAD
+    # We use `git rev-parse --verify` to allow either form
+    # Create branch from the resolved commit.
+    rev = run_git(["rev-parse", "--verify", source])
+    run_git(["branch", backup_name, rev])
+
+
+def push_branch(remote: str, branch: str) -> None:
+    run_git(["push", remote, f"{branch}:refs/heads/{branch}"])
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="Create a backup branch with ordinal or timestamp suffix")
+    p.add_argument("branch", nargs="?", help="branch to back up (default: current branch)")
+    p.add_argument("--remote", default="origin", help="remote name to inspect/push (default: origin)")
+    p.add_argument("--push", action="store_true", help="push the backup to the remote after creating it")
+    grp = p.add_mutually_exclusive_group()
+    grp.add_argument("--timestamp", action="store_true", help="use timestamp suffix instead of ordinal")
+    grp.add_argument("--ordinal", action="store_true", help="force ordinal numbering (default if not --timestamp)")
+    p.add_argument("--dry-run", action="store_true", help="print what would be done, do not modify git")
+    return p.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    try:
+        source = args.branch if args.branch else get_current_branch()
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
+
+    # normalize: if user supplied remote/branch like origin/foo, use as-is as source.
+    # But ensure it exists (local or remote).
+    try:
+        ensure_branch_exists(source)
+    except RuntimeError:
+        # maybe they mean local branch even if remote exists; allow remote form by verifying refs/remotes
+        # If still not found, fail.
+        print(f"Error: branch '{source}' not found locally or remotely", file=sys.stderr)
+        return 2
+
+    # fetch to get remote refs (safe)
+    try:
+        fetch_remote(args.remote)
+    except RuntimeError as e:
+        print(f"Warning: git fetch failed: {e}. Continuing with local refs.", file=sys.stderr)
+
+    local_branches = list_local_branches()
+    remote_branches = list_remote_branches(args.remote)
+
+    if args.timestamp:
+        suffix = iso_timestamp()
+    else:
+        n = next_ordinal(source, local_branches, remote_branches)
+        suffix = str(n)
+
+    backup_name = f"{source}.{suffix}"
+
+    # In case backup_name already exists locally (race), increment (only for ordinal mode)
+    if backup_name in local_branches or backup_name in remote_branches:
+        if args.timestamp:
+            # timestamp collision extremely unlikely, but handle by appending a counter
+            i = 1
+            candidate = f"{backup_name}.{i}"
+            while candidate in local_branches or candidate in remote_branches:
+                i += 1
+                candidate = f"{backup_name}.{i}"
+            backup_name = candidate
+        else:
+            # recompute next ordinal until unique
+            while backup_name in local_branches or backup_name in remote_branches:
+                n = int(backup_name.rsplit(".", 1)[1]) + 1
+                backup_name = f"{source}.{n}"
+
+    print(f"Backing up '{source}' -> '{backup_name}'")
+    if args.dry_run:
+        print("Dry run: no changes made.")
+        return 0
+
+    try:
+        create_backup_branch(source, backup_name)
+    except RuntimeError as e:
+        print(f"Error creating branch: {e}", file=sys.stderr)
+        return 3
+
+    print(f"Created backup branch: {backup_name}")
+    if args.push:
+        try:
+            push_branch(args.remote, backup_name)
+            print(f"Pushed {backup_name} to {args.remote}")
+        except RuntimeError as e:
+            print(f"Error pushing backup to remote: {e}", file=sys.stderr)
+            return 4
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
