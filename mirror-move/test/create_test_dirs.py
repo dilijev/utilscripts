@@ -4,6 +4,10 @@ import argparse
 import shutil
 from pathlib import Path
 
+SOURCE_DIR="machine1"
+DEST_DIR="machine2"
+
+
 def create_destination_from_source(source_dir, dest_dir):
     """Create destination directory by copying source and reorganizing files."""
     source_path = Path(source_dir)
@@ -117,8 +121,8 @@ def create_test_files(base_dir, create_dest=True):
     base_path = Path(base_dir)
 
     # Clean up existing directories if they exist
-    source_dir = base_path / "source"
-    dest_dir = base_path / "destination"
+    source_dir = base_path / SOURCE_DIR
+    dest_dir = base_path / DEST_DIR
 
     if source_dir.exists():
         shutil.rmtree(source_dir)
@@ -256,7 +260,7 @@ if __name__ == "__main__":
 
         print(f"\n{'='*50}")
         print("=== Test Environment Created ===")
-        print_directory_structure(dest_dir, "destination")
+        print_directory_structure(dest_dir, DEST_DIR)
 
         print(f"\nEmpty directories that would be left after moves:")
         print(f"- documents/work/ (empty after moving app_config.json)")
@@ -265,19 +269,19 @@ if __name__ == "__main__":
         print(f"- temp/ (empty after removing downloads/)")
     else:
         print(f"\n=== Source Directory Created ===")
-        print_directory_structure(source_dir, "source")
+        print_directory_structure(source_dir, SOURCE_DIR)
         print(f"\nTo create destination, run:")
         print(f"python create_test_dirs.py --create-destination {base_dir}")
 
     print(f"\nNext steps:")
     if create_dest:
         print(f"1. Generate hash maps:")
-        print(f"   python generate_hash_map.py source source_hashes.json")
-        print(f"   python generate_hash_map.py destination dest_hashes.json")
-        print(f"2. Test move script:")
-        print(f"   python apply_moves.py source source_hashes.json dest_hashes.json --dry-run --verbose")
+        print(f"   python generate_hash_map.py test/{SOURCE_DIR} machine1_hashes.json")
+        print(f"   python generate_hash_map.py test/{DEST_DIR} machine2_hashes.json")
+        print(f"2. Test move script (move files on machine2 to the relative locations per machine1:")
+        print(f"   python apply_moves.py test/machine2 machine2_hashes.json machine1_hashes.json --dry-run --verbose --log-file dry_run.log")
         print(f"3. Execute moves:")
-        print(f"   python apply_moves.py source source_hashes.json dest_hashes.json --execute --log-file test_moves.log")
+        print(f"   python apply_moves.py test/machine2 machine2_hashes.json machine1_hashes.json --execute --verbose --log-file test_moves.log")
     else:
         print(f"1. Create destination directory")
         print(f"2. Generate hash maps and test sync")
@@ -313,8 +317,8 @@ Use --source-only to create just the source directory first.
 
     if args.create_destination:
         # Only create destination from existing source
-        source_dir = base_path / "source"
-        dest_dir = base_path / "destination"
+        source_dir = base_path / SOURCE_DIR
+        dest_dir = base_path / DEST_DIR
 
         if not source_dir.exists():
             print(f"Error: Source directory {source_dir} does not exist", file=sys.stderr)
@@ -322,7 +326,7 @@ Use --source-only to create just the source directory first.
 
         create_destination_from_source(source_dir, dest_dir)
         print("\n=== Destination Created ===")
-        print_directory_structure(dest_dir, "destination")
+        print_directory_structure(dest_dir, DEST_DIR)
 
     else:
         # Create source and optionally destination
