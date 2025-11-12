@@ -17,10 +17,20 @@ def calculate_file_hash(filepath, chunk_size=8192):
         print(f"Error reading {filepath}: {e}", file=sys.stderr)
         return None
 
-def generate_hash_map(base_dir):
-    """Generate mapping of file hash -> relative path."""
+def generate_hash_map(base_dir, output_file):
+    """Generate mapping of file hash -> {relative path, updated time}. Only scan files whose mtime has changed."""
     base_path = Path(base_dir).resolve()
     hash_map = {}
+    prev_map = {}
+
+    # Load previous hash map if output file exists
+    if Path(output_file).exists():
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                prev_map = json.load(f)
+                hash_map = prev_map.copy()
+        except Exception as e:
+            print(f"Warning: Could not load previous hash map: {e}", file=sys.stderr)
 
     if not base_path.exists():
         print(f"Error: Directory {base_dir} does not exist", file=sys.stderr)
@@ -33,18 +43,33 @@ def generate_hash_map(base_dir):
         for file in files:
             filepath = Path(root) / file
             try:
-                # Get relative path from base directory
                 rel_path = filepath.relative_to(base_path)
-                # Convert to forward slashes for consistency
                 rel_path_str = str(rel_path).replace('\\', '/')
+                mtime = int(filepath.stat().st_mtime)
 
+                # Check if file was previously scanned and mtime is unchanged
+                key_value = next(((k, v) for (k, v) in prev_map.items() if v['path'] == rel_path_str), None)
+                k, v = key_value if key_value else (None, None)
+                if k and v['updated'] == mtime:
+                    # hash_map already has this entry from prev_map copy
+                    print(f"Skipping (unchanged): {rel_path_str}", file=sys.stderr)
+                    print(f"  file_hash: {k}", file=sys.stderr)
+                    continue
+
+                print(f"Scanning: {rel_path_str}...", file=sys.stderr, end='')
                 file_hash = calculate_file_hash(filepath)
+                print(f"Done!\n  file_hash: {file_hash}", file=sys.stderr)
                 if file_hash:
-                    hash_map[file_hash] = rel_path_str
+                    hash_map[file_hash] = {'path': rel_path_str, 'updated': mtime, 'hash': file_hash}
                     file_count += 1
                     if file_count % 100 == 0:
                         print(f"Processed {file_count} files...", file=sys.stderr)
-
+                    # Write output file after each file
+                    try:
+                        with open(output_file, 'w', encoding='utf-8') as f:
+                            json.dump(hash_map, f, indent=2, ensure_ascii=False)
+                    except IOError as e:
+                        print(f"Error writing to {output_file}: {e}", file=sys.stderr)
             except (OSError, ValueError) as e:
                 print(f"Error processing {filepath}: {e}", file=sys.stderr)
 
@@ -59,12 +84,4 @@ if __name__ == "__main__":
     base_dir = sys.argv[1]
     output_file = sys.argv[2]
 
-    hash_map = generate_hash_map(base_dir)
-
-    try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(hash_map, f, indent=2, ensure_ascii=False)
-        print(f"Hash map saved to {output_file}")
-    except IOError as e:
-        print(f"Error writing to {output_file}: {e}", file=sys.stderr)
-        sys.exit(1)
+    generate_hash_map(base_dir, output_file)
