@@ -71,7 +71,7 @@ def generate_hash_map(base_dir, output_file):
             print("Done!", file=sys.stderr)
 
             if file_hash:
-                hash_map[file_hash] = {'path': rel_path_str, 'updated': mtime, 'hash': file_hash}
+                hash_map[file_hash] = {'path': rel_path_str, 'updated': mtime}
                 file_count += 1
 
                 print(f"  Hash: {file_hash}", file=sys.stderr)
