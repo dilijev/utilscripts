@@ -6,7 +6,7 @@
 WRAPPER_PATH=$(cd "$(dirname "$0")" && pwd)/git
 REAL_GIT=$(which -a git 2>/dev/null | grep -v "^$WRAPPER_PATH$" | head -1)
 
-if [[ -z "$REAL_GIT" ]]; then
+if [[ -z "$REAL_GIT" ]] || [[ ! -x "$REAL_GIT" ]]; then
     echo "Error: Could not find git binary" >&2
     exit 1
 fi
