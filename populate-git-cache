@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Populate git clone cache from existing local repos
+
+CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
+mkdir -p "$CACHE_DIR"
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: populate-git-cache /path/to/repo1 [/path/to/repo2 ...]" >&2
+    exit 1
+fi
+
+for repo_path in "$@"; do
+    if [[ ! -d "$repo_path/.git" ]]; then
+        echo "ERROR: Not a git repo: $repo_path" >&2
+        continue
+    fi
+
+    # Get remote URL
+    url=$(git -C "$repo_path" remote get-url origin 2>/dev/null)
+    if [[ -z "$url" ]]; then
+        echo "WARNING: No origin remote in $repo_path, skipping" >&2
+        continue
+    fi
+
+    # Compute cache key (same as wrapper)
+    cache_key=$(printf '%s' "$url" | sha256sum | cut -d' ' -f1)
+    cache_mirror="$CACHE_DIR/$cache_key"
+
+    # Skip if already cached
+    if [[ -d "$cache_mirror" ]]; then
+        echo "SKIP: Already cached: $url"
+        continue
+    fi
+
+    echo "Caching: $url"
+
+    # Clone as bare mirror from local path (fast, uses hardlinks)
+    echo "Running: git clone --mirror $repo_path $cache_mirror ..."
+    if git clone --mirror "$repo_path" "$cache_mirror"; then
+        echo "  -> $cache_mirror"
+    else
+        echo "ERROR: Failed to cache $url" >&2
+    fi
+done
+
+echo "Done."
