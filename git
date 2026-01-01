@@ -11,19 +11,53 @@ if [[ -z "$REAL_GIT" ]] || [[ ! -x "$REAL_GIT" ]]; then
     exit 1
 fi
 
-# If not a clone command, pass through to real git
-if [[ "$1" != "clone" ]]; then
+# Check if "clone" is in the arguments
+clone_found=0
+for arg in "$@"; do
+    if [[ "$arg" == "clone" ]]; then
+        clone_found=1
+        break
+    fi
+done
+
+# If no clone, pass through
+if [[ $clone_found -eq 0 ]]; then
     exec "$REAL_GIT" "$@"
 fi
 
-# Extract the remote URL from clone arguments
-# Strategy: find first non-option argument after "clone"
+# Extract URL from arguments after clone
 url=""
-for arg in "${@:2}"; do
-    if [[ ! "$arg" =~ ^- ]]; then
-        url="$arg"
-        break
+skip_next=0
+after_clone=0
+for arg in "$@"; do
+    if [[ "$arg" == "clone" ]]; then
+        after_clone=1
+        continue
     fi
+
+    if [[ $after_clone -eq 0 ]]; then
+        continue
+    fi
+
+    if [[ $skip_next -eq 1 ]]; then
+        skip_next=0
+        continue
+    fi
+
+    # Flags that take an argument
+    if [[ "$arg" =~ ^(--depth|--single-branch|--branch)$ ]]; then
+        skip_next=1
+        continue
+    fi
+
+    # Skip other flags
+    if [[ "$arg" =~ ^- ]]; then
+        continue
+    fi
+
+    # First non-option argument is the URL
+    url="$arg"
+    break
 done
 
 # If no URL found or it's a local path (determine by checking if the path exists locally), pass through
@@ -57,10 +91,17 @@ else
     fi
 fi
 
-# Clone using cache as reference
+# Insert cache flags after "clone" in the original arg list
+declare -a new_args=()
+found_clone=0
+for arg in "$@"; do
+    new_args+=("$arg")
+    if [[ "$arg" == "clone" ]] && [[ $found_clone -eq 0 ]]; then
+        found_clone=1
+        new_args+=("--reference" "$CACHE_MIRROR" "--dissociate")
+    fi
+done
+
 echo "[git-clone-cache] Cloning from local cache" >&2
-echo "[git-clone-cache] $REAL_GIT clone --reference $CACHE_MIRROR --dissociate ${@:2}" >&2
-exec "$REAL_GIT" clone \
-    --reference "$CACHE_MIRROR" \
-    --dissociate \
-    "${@:2}"
+echo "[git-clone-cache] $REAL_GIT ${new_args[*]}" >&2
+exec "$REAL_GIT" "${new_args[@]}"
