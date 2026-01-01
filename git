@@ -41,6 +41,7 @@ CACHE_MIRROR="$CACHE_DIR/$CACHE_KEY"
 # Initialize cache if missing
 if [[ ! -d "$CACHE_MIRROR" ]]; then
     echo "[git-clone-cache] Initializing cache: $url" >&2
+    echo "Running $REAL_GIT clone --mirror \"$url\" \"$CACHE_MIRROR\""
     "$REAL_GIT" clone --mirror "$url" "$CACHE_MIRROR" || {
         echo "[git-clone-cache] ERROR: Failed to clone to cache" >&2
         exit 1
@@ -48,6 +49,7 @@ if [[ ! -d "$CACHE_MIRROR" ]]; then
 else
     # Update existing cache
     echo "[git-clone-cache] Updating cache mirror" >&2
+    echo "Running $REAL_GIT -C \"$CACHE_MIRROR\" fetch --all"
     if ! "$REAL_GIT" -C "$CACHE_MIRROR" fetch --all >/dev/null 2>&1; then
         echo "[git-clone-cache] WARNING: Failed to update cache, proceeding anyway" >&2
     fi
@@ -55,6 +57,7 @@ fi
 
 # Clone using cache as reference
 echo "[git-clone-cache] Cloning from local cache" >&2
+echo "Running $REAL_GIT clone --reference \"$CACHE_MIRROR\" --dissociate \"${@:2}\""
 exec "$REAL_GIT" clone \
     --reference "$CACHE_MIRROR" \
     --dissociate \
