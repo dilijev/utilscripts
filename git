@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Wrapper to intercept git clone and use local mirror cache
+
+# Find real git binary (skip this wrapper)
+REAL_GIT=$(which -a git 2>/dev/null | grep -v "$(dirname "$0")" | head -1)
+
+if [[ -z "$REAL_GIT" ]]; then
+    echo "Error: Could not find git binary" >&2
+    exit 1
+fi
+
+# If not a clone command, pass through to real git
+if [[ "$1" != "clone" ]]; then
+    exec "$REAL_GIT" "$@"
+fi
+
+# Determine cache directory (with env var override)
+CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
+mkdir -p "$CACHE_DIR"
+
+# Extract the remote URL from clone arguments
+# Strategy: find first non-option argument after "clone"
+url=""
+for arg in "${@:2}"; do
+    if [[ ! "$arg" =~ ^- ]]; then
+        url="$arg"
+        break
+    fi
+done
+
+# If no URL found, pass through
+if [[ -z "$url" ]]; then
+    exec "$REAL_GIT" "$@"
+fi
+
+# Compute stable cache key from URL
+CACHE_KEY=$(printf '%s' "$url" | sha256sum | cut -d' ' -f1)
+CACHE_MIRROR="$CACHE_DIR/$CACHE_KEY"
+
+# Initialize cache if missing
+if [[ ! -d "$CACHE_MIRROR" ]]; then
+    echo "[git-clone-cache] Initializing cache: $url" >&2
+    "$REAL_GIT" clone --mirror "$url" "$CACHE_MIRROR" || {
+        echo "[git-clone-cache] ERROR: Failed to clone to cache" >&2
+        exit 1
+    }
+else
+    # Update existing cache
+    echo "[git-clone-cache] Updating cache mirror" >&2
+    if ! "$REAL_GIT" -C "$CACHE_MIRROR" fetch --all >/dev/null 2>&1; then
+        echo "[git-clone-cache] WARNING: Failed to update cache, proceeding anyway" >&2
+    fi
+fi
+
+# Clone using cache as reference
+echo "[git-clone-cache] Cloning from local cache" >&2
+exec "$REAL_GIT" clone \
+    --reference "$CACHE_MIRROR" \
+    --dissociate \
+    "${@:2}"
