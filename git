@@ -71,7 +71,9 @@ CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
 mkdir -p "$CACHE_DIR"
 
 # Compute stable cache key from URL
+echo "[git-clone-cache] Clone URL: $url" >&2
 CACHE_KEY=$(printf '%s' "$url" | sha256sum | cut -d' ' -f1)
+echo "[git-clone-cache] Cache key (sha256): $CACHE_KEY" >&2
 CACHE_MIRROR="$CACHE_DIR/$CACHE_KEY"
 
 # Initialize cache if missing
