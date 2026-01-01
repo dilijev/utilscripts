@@ -1,46 +1,66 @@
 #!/bin/bash
 
-# Populate git clone cache from existing local repos
+# Populate/update git clone cache from local repos or URLs
 
 CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
 mkdir -p "$CACHE_DIR"
 
 if [[ $# -eq 0 ]]; then
-    echo "Usage: populate-git-cache /path/to/repo1 [/path/to/repo2 ...]" >&2
+    echo "Usage: populate-git-cache /path/to/repo1 [/path/to/repo2 ...] [https://url ...]" >&2
     exit 1
 fi
 
-for repo_path in "$@"; do
-    if [[ ! -d "$repo_path/.git" ]]; then
-        echo "ERROR: Not a git repo: $repo_path" >&2
+for arg in "$@"; do
+    if [[ -d "$arg/.git" ]]; then
+        # It's a local repo, extract origin URL
+        url=$(git -C "$arg" remote get-url origin 2>/dev/null)
+        if [[ -z "$url" ]]; then
+            echo "WARNING: No origin remote in $arg, skipping" >&2
+            continue
+        fi
+        is_local_repo=1
+    elif [[ -d "$arg" ]]; then
+        # Directory but not a repo
+        echo "ERROR: Not a git repo: $arg" >&2
         continue
-    fi
-
-    # Get remote URL
-    url=$(git -C "$repo_path" remote get-url origin 2>/dev/null)
-    if [[ -z "$url" ]]; then
-        echo "WARNING: No origin remote in $repo_path, skipping" >&2
-        continue
+    else
+        # Assume it's a URL
+        url="$arg"
+        is_local_repo=0
     fi
 
     # Compute cache key (same as wrapper)
     cache_key=$(printf '%s' "$url" | sha256sum | cut -d' ' -f1)
     cache_mirror="$CACHE_DIR/$cache_key"
 
-    # Skip if already cached
+    # if it's already cached, update it; else clone it into the cache
     if [[ -d "$cache_mirror" ]]; then
-        echo "SKIP: Already cached: $url"
-        continue
-    fi
-
-    echo "Caching: $url"
-
-    # Clone as bare mirror from local path (fast, uses hardlinks)
-    echo "Running: git clone --mirror $repo_path $cache_mirror ..."
-    if git clone --mirror "$repo_path" "$cache_mirror"; then
-        echo "  -> $cache_mirror"
+        # Already cached, update it
+        echo "Updating: $url"
+        if git -C "$cache_mirror" fetch --all; then
+            echo "  -> OK"
+        else
+            echo "ERROR: Failed to update cache for $url" >&2
+        fi
     else
-        echo "ERROR: Failed to cache $url" >&2
+        # New cache entry
+        echo "Caching: $url"
+
+        if [[ $is_local_repo -eq 1 ]]; then
+            # Clone from local path (fast, uses hardlinks)
+            if git clone --mirror "$arg" "$cache_mirror"; then
+                echo "  -> $cache_mirror"
+            else
+                echo "ERROR: Failed to cache $url" >&2
+            fi
+        else
+            # Clone from remote URL
+            if git clone --mirror "$url" "$cache_mirror"; then
+                echo "  -> $cache_mirror"
+            else
+                echo "ERROR: Failed to cache $url" >&2
+            fi
+        fi
     fi
 done
 
