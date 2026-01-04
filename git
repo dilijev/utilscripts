@@ -100,7 +100,7 @@ for arg in "$@"; do
     new_args+=("$arg")
     if [[ "$arg" == "clone" ]] && [[ $found_clone -eq 0 ]]; then
         found_clone=1
-        new_args+=("--reference" "$CACHE_MIRROR" "--dissociate")
+        new_args+=("--reference" "$CACHE_MIRROR")
     fi
 done
 
