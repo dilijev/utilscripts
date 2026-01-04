@@ -31,7 +31,7 @@ mkdir -p "$CACHE_DIR"
 # Set up log file
 LOG_FILE="$CACHE_DIR/git-clone-cache.log"
 log() {
-    echo "[git-clone-cache] $*" | tee -a "$LOG_FILE" >&2
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [git-clone-cache] $*" | tee -a "$LOG_FILE" >&2
 }
 
 # Extract URL from arguments after clone
