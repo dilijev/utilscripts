@@ -25,6 +25,16 @@ if [[ $clone_found -eq 0 ]]; then
     exec "$REAL_GIT" "$@"
 fi
 
+# Determine cache directory (with env var override)
+CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
+mkdir -p "$CACHE_DIR"
+
+# Set up log file
+LOG_FILE="$CACHE_DIR/git-clone-cache.log"
+log() {
+    echo "[git-clone-cache] $*" | tee -a "$LOG_FILE" >&2
+}
+
 # Extract URL from arguments after clone
 url=""
 skip_next=0
@@ -66,30 +76,27 @@ if [[ -z "$url" ]] || [[ -d "$url" ]] || [[ -f "$url" ]]; then
     exec "$REAL_GIT" "$@"
 fi
 
-# Determine cache directory (with env var override)
-CACHE_DIR="${GIT_CLONE_CACHE_DIR:=$HOME/.git-clone-cache}"
-mkdir -p "$CACHE_DIR"
 
 # Compute stable cache key from URL
-echo "[git-clone-cache] Clone URL: $url" >&2
+log "Clone URL: $url"
 CACHE_KEY=$(printf '%s' "$url" | sha256sum | cut -d' ' -f1)
-echo "[git-clone-cache] Cache key (sha256): $CACHE_KEY" >&2
+log "Cache key (sha256): $CACHE_KEY"
 CACHE_MIRROR="$CACHE_DIR/$CACHE_KEY"
 
 # Initialize cache if missing
 if [[ ! -d "$CACHE_MIRROR" ]]; then
-    echo "[git-clone-cache] Initializing cache: $url" >&2
-    echo "[git-clone-cache] $REAL_GIT clone --mirror $url $CACHE_MIRROR" >&2
+    log "Initializing cache: $url"
+    log "$REAL_GIT clone --mirror $url $CACHE_MIRROR"
     "$REAL_GIT" clone --mirror "$url" "$CACHE_MIRROR" || {
-        echo "[git-clone-cache] ERROR: Failed to clone to cache" >&2
+        log "ERROR: Failed to clone to cache"
         exit 1
     }
 else
     # Update existing cache
-    echo "[git-clone-cache] Updating cache mirror" >&2
-    echo "[git-clone-cache] $REAL_GIT -C $CACHE_MIRROR fetch --all" >&2
+    log "Updating cache mirror"
+    log "$REAL_GIT -C $CACHE_MIRROR fetch --all"
     if ! "$REAL_GIT" -C "$CACHE_MIRROR" fetch --all >/dev/null 2>&1; then
-        echo "[git-clone-cache] WARNING: Failed to update cache, proceeding anyway" >&2
+        log "WARNING: Failed to update cache, proceeding anyway"
     fi
 fi
 
@@ -104,6 +111,6 @@ for arg in "$@"; do
     fi
 done
 
-echo "[git-clone-cache] Cloning from local cache" >&2
-echo "[git-clone-cache] $REAL_GIT ${new_args[*]}" >&2
+log "Cloning from local cache"
+log "$REAL_GIT ${new_args[*]}"
 exec "$REAL_GIT" "${new_args[@]}"
