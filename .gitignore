@@ -1,0 +1,8 @@
+*~
+~*
+*.pyc
+*.class
+*.txt
+*.zip
+out/
+*.exe
