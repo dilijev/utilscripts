@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Wrapper to intercept git clone and use local mirror cache
+# Copy this script to a directory in your PATH before the real git binary.
+# Rename this script to "git" so that it intercepts git commands.
+# This wrapper will cache git clone operations using a local mirror.
 
 # Find real git binary (skip this wrapper by using absolute path)
 WRAPPER_PATH=$(cd "$(dirname "$0")" && pwd)/git
