@@ -4,8 +4,9 @@
 # Rename this script to "git" so that it intercepts git commands.
 # This wrapper will cache git clone operations using a local mirror.
 
-# Find real git binary (skip this wrapper)
-REAL_GIT=$(which -a git 2>/dev/null | grep -v "$(dirname "$0")" | head -1)
+# Find real git binary (skip this wrapper by using absolute path)
+WRAPPER_PATH=$(cd "$(dirname "$0")" && pwd)/git
+REAL_GIT=$(which -a git 2>/dev/null | grep -v "^$WRAPPER_PATH$" | head -1)
 
 if [[ -z "$REAL_GIT" ]] || [[ ! -x "$REAL_GIT" ]]; then
     echo "Error: Could not find git binary" >&2
