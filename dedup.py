@@ -69,8 +69,7 @@ def save_dir_hash_record(dirpath, record_name, record):
     except Exception as e:
         print("Could not save hash record %s: %s" % (record_path, e))
 
-def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename):
-    # If present and mtime/size match, use cached hash
+def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpath=None, record_name=None, record_hashes=False):
     rec = dir_record.get(filename)
     if rec and rec.get("mtime") == mtime and rec.get("size") == size and "hash" in rec:
         return rec["hash"]
@@ -82,23 +81,25 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename):
     file_hash = hashobj.digest()
     # Update record
     dir_record[filename] = {"mtime": mtime, "size": size, "hash": file_hash}
+    # Write out the updated dir_record immediately after getting a new hash if requested
+    if record_hashes and dirpath and record_name:
+        save_dir_hash_record(dirpath, record_name, dir_record)
     return file_hash
 
-def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedence_rules=None, hash_record=False, record_name=".dedup_hashes.json"):
+def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedence_rules=None, record_hashes=False, record_name=".dedup_hashes.json"):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             print("Checking directory: %s" % dirpath)
             # Load or create hash record for this directory
-            if hash_record:
+            if record_hashes:
                 dir_record = load_dir_hash_record(dirpath, record_name)
             else:
                 dir_record = {}
             dir_records[dirpath] = dir_record
 
             for filename in filenames:
-                updated = False
                 full_path = os.path.join(dirpath, filename)
                 try:
                     stat = os.stat(full_path)
@@ -107,20 +108,13 @@ def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedenc
                     continue
                 mtime = int(stat.st_mtime)
                 size = stat.st_size
-                file_hash = get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename) if hash_record else None
-                if hash_record and (filename not in dir_record or dir_record[filename].get("hash") != file_hash):
-                    updated = True
+                file_hash = get_file_hash(
+                    full_path, hashfunc, mtime, size, dir_record, filename,
+                    dirpath, record_name, record_hashes
+                )
+
                 # Use (hash, size) as key for deduplication
-                file_id = (file_hash if hash_record else None) or None
-                if not file_id:
-                    # fallback: always compute hash if not using hash_record
-                    hashobj = hashfunc()
-                    with open(full_path, 'rb') as f:
-                        for chunk in chunk_reader(f):
-                            hashobj.update(chunk)
-                    file_id = (hashobj.digest(), size)
-                else:
-                    file_id = (file_hash, size)
+                file_id = (file_hash, size)
 
                 duplicate = hashes.get(file_id, None)
                 if duplicate:
@@ -199,11 +193,6 @@ def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedenc
                 else:
                     hashes[file_id] = full_path
 
-                # Save updated hash record in this directory after processing each file
-                if hash_record and updated:
-                    save_dir_hash_record(dirpath, record_name, dir_record)
-                    updated = False
-
 def main():
     parser = argparse.ArgumentParser(
         description="Find and optionally delete duplicate files in given directories."
@@ -211,7 +200,7 @@ def main():
     parser.add_argument("paths", nargs="+", help="Directories to check for duplicates")
     parser.add_argument("-d", "--delete", action="store_true", help="Delete duplicates interactively or by rule")
     parser.add_argument("--precedence-rules", help="Path to precedence_rules.json for auto-deletion rules")
-    parser.add_argument("--hash-record", action="store_true", help="Store and update per-directory JSON hash records for resumability")
+    parser.add_argument("--record-hashes", action="store_true", help="Store and update per-directory JSON hash records for resumability")
     parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
     args = parser.parse_args()
 
@@ -221,7 +210,7 @@ def main():
         args.paths,
         delete=args.delete,
         precedence_rules=precedence_rules,
-        hash_record=args.hash_record,
+        record_hashes=args.record_hashes,
         record_name=args.record_name
     )
 
