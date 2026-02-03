@@ -1,14 +1,8 @@
-from __future__ import print_function
 import sys
 import os
 import hashlib
 import argparse
 import json
-
-try: input = raw_input
-except NameError: pass
-
-# compatible with python 2 and python 3
 
 def chunk_reader(fobj, chunk_size=1024):
     """Generator that reads a file in chunks of bytes"""
