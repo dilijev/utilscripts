@@ -27,7 +27,7 @@ def load_precedence_rules(path):
             # Each rule should be a dict with 'keep' and 'delete' keys
             return rules if isinstance(rules, list) else []
     except Exception as e:
-        print("Could not load precedence rules: %s" % e)
+        print(f"Could not load precedence rules: {e}")
         return []
 
 def match_precedence_rule(rules, path1, path2):
@@ -60,11 +60,11 @@ def load_dir_hash_record(dirpath, record_name):
                         meta["hash"] = bytes.fromhex(meta["hash"])
                     except Exception:
                         pass
-            print("Loaded hash record from %s" % record_path)
+            print(f"Loaded hash record from {record_path}")
             return record
         except Exception as e:
-            print("Could not load hash record %s: %s" % (record_path, e))
-    print("Creating new hash record for %s" % dirpath)
+            print(f"Could not load hash record {record_path}: {e}")
+    print(f"Creating new hash record for {dirpath}")
     return {}
 
 def save_dir_hash_record(dirpath, record_name, record):
@@ -79,9 +79,9 @@ def save_dir_hash_record(dirpath, record_name, record):
     try:
         with open(record_path, "w") as f:
             json.dump(serializable_record, f, indent=2, sort_keys=True)
-        print("Saved hash record to %s" % record_path)
+        print(f"Saved hash record to {record_path}")
     except Exception as e:
-        print("Could not save hash record %s: %s" % (record_path, e))
+        print(f"Could not save hash record {record_path}: {e}")
 
 def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpath=None, record_name=None, record_hashes=False):
     rec = dir_record.get(filename)
@@ -95,7 +95,7 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpat
     elif "hash" not in rec:
         reason = "hash missing"
     if reason:
-        print("Computing hash for %s (%s)" % (full_path, reason))
+        print(f"{reason} -> Computing hash for {full_path}")
         hashobj = hashfunc()
         with open(full_path, 'rb') as f:
             for chunk in chunk_reader(f):
@@ -108,7 +108,7 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpat
             save_dir_hash_record(dirpath, record_name, dir_record)
         return file_hash
     else:
-        print("Using cached hash for %s" % full_path)
+        print(f"Using cached hash for {full_path}")
         return rec["hash"]
 
 def check_for_duplicates(
@@ -125,7 +125,7 @@ def check_for_duplicates(
     ignore_files = {".DS_Store", record_name}
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
-            print("Checking directory: %s" % dirpath)
+            print(f"Checking directory: {dirpath}")
             # Load or create hash record for this directory
             if record_hashes:
                 dir_record = load_dir_hash_record(dirpath, record_name)
@@ -140,7 +140,7 @@ def check_for_duplicates(
                 try:
                     stat = os.stat(full_path)
                 except Exception as e:
-                    print("Could not stat file %s: %s" % (full_path, e))
+                    print(f"Could not stat file {full_path}: {e}")
                     continue
                 mtime = int(stat.st_mtime)
                 size = stat.st_size
@@ -157,21 +157,21 @@ def check_for_duplicates(
 
                 duplicate = hashes.get(file_id, None)
                 if duplicate:
-                    print("\nDuplicate found:\n  [1] %s\n  [2] %s" % (full_path, duplicate))
+                    print(f"\nDuplicate found:\n  [1] {full_path}\n  [2] {duplicate}")
                     # Precedence rules logic
                     keep, to_delete = None, None
                     if precedence_rules:
                         keep, to_delete = match_precedence_rule(precedence_rules, full_path, duplicate)
                     if keep and to_delete:
-                        print("Precedence rule: KEEP %s, DELETE %s" % (keep, to_delete))
+                        print(f"Precedence rule: KEEP {keep}, DELETE {to_delete}")
                         if delete:
                             try:
                                 os.remove(to_delete)
-                                print("Deleted (by rule): %s" % to_delete)
+                                print(f"Deleted (by rule): {to_delete}")
                             except Exception as e:
-                                print("Could not delete %s: %s" % (to_delete, e))
+                                print(f"Could not delete {to_delete}: {e}")
                         else:
-                            print("[DRY RUN] Would delete (by rule): %s" % to_delete)
+                            print(f"[DRY RUN] Would delete (by rule): {to_delete}")
                         hashes[file_id] = keep
                         continue
                     if delete:
@@ -185,45 +185,42 @@ def check_for_duplicates(
                             print("Files are in the same directory: deleting newest")
 
                             if time1 > time2:
-                                print("Deleting:\n  [1] %s" % path1)
+                                print(f"Deleting:\n  [1] {path1}")
 
                                 try:
                                     os.remove(path1)
                                 except:
-                                    print("Could not find file:\n  %s\nContinuing..." % path1)
-
+                                    print(f"Could not find file:\n  {path1}\nContinuing...")
                                 hashes[file_id] = path2
 
                             else:
-                                print("Deleting:\n  [2] %s" % path2)
-
+                                print(f"Deleting:\n  [2] {path2}")
                                 try:
                                     os.remove(path2)
                                 except:
-                                    print("Could not find file:\n  %s\nContinuing..." % path2)
-
+                                    print(f"Could not find file:\n  {path2}\nContinuing...")
                                 hashes[file_id] = path1
 
                         else:
                             selection = input("Which to delete? [1/2] (type anything else to keep both)> ")
 
                             if selection == "1":
-                                print("Deleting:\n  [1] %s" % path1)
+                                print(f"Deleting:\n  [1] {path1}")
 
                                 try:
                                     os.remove(path1)
                                 except:
-                                    print("Could not find file:\n  %s\nContinuing..." % path1)
+                                    print(f"Could not find file:\n  {path1}\nContinuing...")
 
                                 hashes[file_id] = path2
 
                             elif selection == "2":
-                                print("Deleting:\n  [2] %s" % path2)
+                                print(f"Deleting:\n  [2] {path2}")
 
                                 try:
                                     os.remove(path2)
                                 except:
-                                    print("Could not find file:\n  %s\nContinuing..." % path2)
+                                    print(f"Could not find file:\n  {path2}\nContinuing...")
 
                             else:
                                 print("Not deleting either image")
