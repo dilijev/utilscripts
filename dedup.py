@@ -112,7 +112,8 @@ def check_for_duplicates(
     precedence_rules=None,
     record_hashes=False,
     record_name=".dedup_hashes.json",
-    min_filesize=1024  # Ignore files smaller than 1 KB by default
+    min_filesize=1024,  # Ignore files smaller than 1 KB by default
+    no_read_hashes=False
 ):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
@@ -120,8 +121,8 @@ def check_for_duplicates(
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             print(f"Checking directory: {dirpath}")
-            # Load or create hash record for this directory
-            if record_hashes:
+            # Load hash record for this directory if present, unless bypassed
+            if not no_read_hashes:
                 dir_record = load_dir_hash_record(dirpath, record_name)
             else:
                 dir_record = {}
@@ -233,7 +234,11 @@ def main():
     parser.add_argument("--record-hashes", action="store_true", help="Store and update per-directory JSON hash records for resumability")
     parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
     parser.add_argument("--min-filesize", type=int, default=1024, help="Ignore files smaller than this many bytes (default: 1024, set to 0 to disable)")
+    parser.add_argument("--no-read-hashes", action="store_true", help="Do not read from per-directory hash record files even if present")
     args = parser.parse_args()
+
+    if not args.record_hashes:
+        print("Warning: --record-hashes not set, hashes will not be persisted for the next run.", file=sys.stderr)
 
     precedence_rules = load_precedence_rules(args.precedence_rules) if args.precedence_rules else None
 
@@ -243,7 +248,8 @@ def main():
         precedence_rules=precedence_rules,
         record_hashes=args.record_hashes,
         record_name=args.record_name,
-        min_filesize=args.min_filesize
+        min_filesize=args.min_filesize,
+        no_read_hashes=args.no_read_hashes
     )
 
 if __name__ == "__main__":
