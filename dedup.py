@@ -84,10 +84,13 @@ def save_dir_hash_record(dirpath, record_name, record):
         print("Could not save hash record %s: %s" % (record_path, e))
 
 def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpath=None, record_name=None, record_hashes=False):
+    print("Getting hash for file: %s" % full_path)
     rec = dir_record.get(filename)
     if rec and rec.get("mtime") == mtime and rec.get("size") == size and "hash" in rec:
+        print("Using cached hash for %s" % full_path)
         return rec["hash"]
     # Otherwise, compute hash
+    print("Computing hash for %s" % full_path)
     hashobj = hashfunc()
     with open(full_path, 'rb') as f:
         for chunk in chunk_reader(f):
