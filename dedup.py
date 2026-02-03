@@ -82,7 +82,7 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename):
     dir_record[filename] = {"mtime": mtime, "size": size, "hash": file_hash}
     return file_hash
 
-def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rules=None, hash_record=False, record_name=".dedup_hashes.json"):
+def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedence_rules=None, hash_record=False, record_name=".dedup_hashes.json"):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
     for path in paths:
@@ -105,14 +105,14 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rule
                     continue
                 mtime = int(stat.st_mtime)
                 size = stat.st_size
-                file_hash = get_file_hash(full_path, hash, mtime, size, dir_record, filename) if hash_record else None
+                file_hash = get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename) if hash_record else None
                 if hash_record and (filename not in dir_record or dir_record[filename].get("hash") != file_hash):
                     updated = True
                 # Use (hash, size) as key for deduplication
                 file_id = (file_hash if hash_record else None) or None
                 if not file_id:
                     # fallback: always compute hash if not using hash_record
-                    hashobj = hash()
+                    hashobj = hashfunc()
                     with open(full_path, 'rb') as f:
                         for chunk in chunk_reader(f):
                             hashobj.update(chunk)
