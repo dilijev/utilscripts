@@ -84,24 +84,32 @@ def save_dir_hash_record(dirpath, record_name, record):
         print("Could not save hash record %s: %s" % (record_path, e))
 
 def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpath=None, record_name=None, record_hashes=False):
-    print("Getting hash for file: %s" % full_path)
     rec = dir_record.get(filename)
-    if rec and rec.get("mtime") == mtime and rec.get("size") == size and "hash" in rec:
+    reason = None
+    if rec is None:
+        reason = "not in database"
+    elif rec.get("mtime") != mtime:
+        reason = "mtime changed"
+    elif rec.get("size") != size:
+        reason = "size changed"
+    elif "hash" not in rec:
+        reason = "hash missing"
+    if reason:
+        print("Computing hash for %s (%s)" % (full_path, reason))
+        hashobj = hashfunc()
+        with open(full_path, 'rb') as f:
+            for chunk in chunk_reader(f):
+                hashobj.update(chunk)
+        file_hash = hashobj.digest()
+        # Update record
+        dir_record[filename] = {"mtime": mtime, "size": size, "hash": file_hash}
+        # Write out the updated dir_record immediately after getting a new hash if requested
+        if record_hashes and dirpath and record_name:
+            save_dir_hash_record(dirpath, record_name, dir_record)
+        return file_hash
+    else:
         print("Using cached hash for %s" % full_path)
         return rec["hash"]
-    # Otherwise, compute hash
-    print("Computing hash for %s" % full_path)
-    hashobj = hashfunc()
-    with open(full_path, 'rb') as f:
-        for chunk in chunk_reader(f):
-            hashobj.update(chunk)
-    file_hash = hashobj.digest()
-    # Update record
-    dir_record[filename] = {"mtime": mtime, "size": size, "hash": file_hash}
-    # Write out the updated dir_record immediately after getting a new hash if requested
-    if record_hashes and dirpath and record_name:
-        save_dir_hash_record(dirpath, record_name, dir_record)
-    return file_hash
 
 def check_for_duplicates(
     paths,
