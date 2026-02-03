@@ -25,7 +25,7 @@ def load_precedence_rules(path):
         return []
 
 def match_precedence_rule(rules, path1, path2):
-    # Returns (keep_path, delete_path) if a rule matches, else (None, None)
+    # Returns (keep_path, delete_path, rule) if a rule matches, else (None, None, None)
     for rule in rules:
         keep_prefix = rule.get("keep")
         delete_prefix = rule.get("delete")
@@ -36,10 +36,10 @@ def match_precedence_rule(rules, path1, path2):
             p1 = os.path.normpath(path1)
             p2 = os.path.normpath(path2)
             if p1.startswith(kp) and p2.startswith(dp):
-                return (path1, path2)
+                return (path1, path2, rule)
             if p2.startswith(kp) and p1.startswith(dp):
-                return (path2, path1)
-    return (None, None)
+                return (path2, path1, rule)
+    return (None, None, None)
 
 def load_dir_hash_record(dirpath, record_name):
     record_path = os.path.join(dirpath, record_name)
@@ -165,19 +165,9 @@ def check_for_duplicates(
                 duplicate = hashes.get(file_id, None)
                 if duplicate:
                     print(f"\nDuplicate found:\n  [1] {full_path}\n  [2] {duplicate}")
-                    # Precedence rules logic
-                    keep, to_delete = None, None
-                    rule_used = None
+                    keep, to_delete, rule_used = None, None, None
                     if precedence_rules:
-                        keep, to_delete = match_precedence_rule(precedence_rules, full_path, duplicate)
-                        if keep and to_delete:
-                            # Find the matching rule for logging
-                            for rule in precedence_rules:
-                                kp = os.path.normpath(rule.get("keep", ""))
-                                dp = os.path.normpath(rule.get("delete", ""))
-                                if (keep.startswith(kp) and to_delete.startswith(dp)) or (keep.startswith(dp) and to_delete.startswith(kp)):
-                                    rule_used = rule
-                                    break
+                        keep, to_delete, rule_used = match_precedence_rule(precedence_rules, full_path, duplicate)
                     if keep and to_delete:
                         print(f"Precedence rule: KEEP {keep}, DELETE {to_delete}")
                         if delete:
@@ -266,11 +256,18 @@ def main():
     parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
     parser.add_argument("--min-filesize", type=int, default=1024, help="Ignore files smaller than this many bytes (default: 1024, set to 0 to disable)")
     parser.add_argument("--no-read-hashes", action="store_true", help="Do not read from per-directory hash record files even if present")
-    parser.add_argument("--log-file", help="Append all deletions to this log file as JSON lines")
+    parser.add_argument("--log-file", default="dedup_deletions.log", help="Append all deletions to this log file as JSON lines (default: dedup_deletions.log)")
+    parser.add_argument("--no-log-file", action="store_true", help="Do not log deletions to a file")
     args = parser.parse_args()
 
     if not args.record_hashes:
         print("Warning: --record-hashes not set, hashes will not be persisted for the next run.", file=sys.stderr)
+
+    log_file = None
+    if args.no_log_file:
+        print("Warning: --no-log-file set, deletions will not be logged.", file=sys.stderr)
+    else:
+        log_file = args.log_file
 
     precedence_rules = load_precedence_rules(args.precedence_rules) if args.precedence_rules else None
 
@@ -282,7 +279,7 @@ def main():
         record_name=args.record_name,
         min_filesize=args.min_filesize,
         no_read_hashes=args.no_read_hashes,
-        log_file=args.log_file
+        log_file=log_file
     )
 
 if __name__ == "__main__":
