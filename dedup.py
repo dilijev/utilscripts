@@ -53,6 +53,13 @@ def load_dir_hash_record(dirpath, record_name):
         try:
             with open(record_path, "r") as f:
                 record = json.load(f)
+            # Convert any hex string hashes back to bytes
+            for fname, meta in record.items():
+                if "hash" in meta and isinstance(meta["hash"], str):
+                    try:
+                        meta["hash"] = bytes.fromhex(meta["hash"])
+                    except Exception:
+                        pass
             print("Loaded hash record from %s" % record_path)
             return record
         except Exception as e:
@@ -62,9 +69,16 @@ def load_dir_hash_record(dirpath, record_name):
 
 def save_dir_hash_record(dirpath, record_name, record):
     record_path = os.path.join(dirpath, record_name)
+    # Convert any bytes in 'hash' fields to hex strings for JSON serialization
+    serializable_record = {}
+    for fname, meta in record.items():
+        meta_copy = dict(meta)
+        if isinstance(meta_copy.get("hash"), bytes):
+            meta_copy["hash"] = meta_copy["hash"].hex()
+        serializable_record[fname] = meta_copy
     try:
         with open(record_path, "w") as f:
-            json.dump(record, f, indent=2, sort_keys=True)
+            json.dump(serializable_record, f, indent=2, sort_keys=True)
         print("Saved hash record to %s" % record_path)
     except Exception as e:
         print("Could not save hash record %s: %s" % (record_path, e))
