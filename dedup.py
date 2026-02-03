@@ -47,18 +47,79 @@ def match_precedence_rule(rules, path1, path2):
                 return (path2, path1)
     return (None, None)
 
-def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rules=None):
+def load_dir_hash_record(dirpath, record_name):
+    record_path = os.path.join(dirpath, record_name)
+    if os.path.exists(record_path):
+        try:
+            with open(record_path, "r") as f:
+                return json.load(f)
+            print("Loaded hash record from %s" % record_path)
+        except Exception as e:
+            print("Could not load hash record %s: %s" % (record_path, e))
+    return {}
+
+def save_dir_hash_record(dirpath, record_name, record):
+    record_path = os.path.join(dirpath, record_name)
+    try:
+        with open(record_path, "w") as f:
+            json.dump(record, f, indent=2, sort_keys=True)
+        print("Saved hash record to %s" % record_path)
+    except Exception as e:
+        print("Could not save hash record %s: %s" % (record_path, e))
+
+def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename):
+    # If present and mtime/size match, use cached hash
+    rec = dir_record.get(filename)
+    if rec and rec.get("mtime") == mtime and rec.get("size") == size and "hash" in rec:
+        return rec["hash"]
+    # Otherwise, compute hash
+    hashobj = hashfunc()
+    with open(full_path, 'rb') as f:
+        for chunk in chunk_reader(f):
+            hashobj.update(chunk)
+    file_hash = hashobj.digest()
+    # Update record
+    dir_record[filename] = {"mtime": mtime, "size": size, "hash": file_hash}
+    return file_hash
+
+def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rules=None, hash_record=False, record_name=".dedup_hashes.json"):
     hashes = {}
+    dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             print("Checking directory: %s" % dirpath)
+            # Load or create hash record for this directory
+            if hash_record:
+                dir_record = load_dir_hash_record(dirpath, record_name)
+            else:
+                dir_record = {}
+            dir_records[dirpath] = dir_record
 
             for filename in filenames:
+                updated = False
                 full_path = os.path.join(dirpath, filename)
-                hashobj = hash()
-                for chunk in chunk_reader(open(full_path, 'rb')):
-                    hashobj.update(chunk)
-                file_id = (hashobj.digest(), os.path.getsize(full_path))
+                try:
+                    stat = os.stat(full_path)
+                except Exception as e:
+                    print("Could not stat file %s: %s" % (full_path, e))
+                    continue
+                mtime = int(stat.st_mtime)
+                size = stat.st_size
+                file_hash = get_file_hash(full_path, hash, mtime, size, dir_record, filename) if hash_record else None
+                if hash_record and (filename not in dir_record or dir_record[filename].get("hash") != file_hash):
+                    updated = True
+                # Use (hash, size) as key for deduplication
+                file_id = (file_hash if hash_record else None) or None
+                if not file_id:
+                    # fallback: always compute hash if not using hash_record
+                    hashobj = hash()
+                    with open(full_path, 'rb') as f:
+                        for chunk in chunk_reader(f):
+                            hashobj.update(chunk)
+                    file_id = (hashobj.digest(), size)
+                else:
+                    file_id = (file_hash, size)
+
                 duplicate = hashes.get(file_id, None)
                 if duplicate:
                     print("\nDuplicate found:\n  [1] %s\n  [2] %s" % (full_path, duplicate))
@@ -76,10 +137,8 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rule
                                 print("Could not delete %s: %s" % (to_delete, e))
                         else:
                             print("[DRY RUN] Would delete (by rule): %s" % to_delete)
-                        # Always keep the 'keep' file in the hashes map
                         hashes[file_id] = keep
                         continue
-                    # ...existing code for interactive/manual selection...
                     if delete:
                         path1 = full_path
                         path2 = duplicate
@@ -138,6 +197,11 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1, precedence_rule
                 else:
                     hashes[file_id] = full_path
 
+                # Save updated hash record in this directory after processing each file
+                if hash_record and updated:
+                    save_dir_hash_record(dirpath, record_name, dir_record)
+                    updated = False
+
 def main():
     parser = argparse.ArgumentParser(
         description="Find and optionally delete duplicate files in given directories."
@@ -145,11 +209,19 @@ def main():
     parser.add_argument("paths", nargs="+", help="Directories to check for duplicates")
     parser.add_argument("-d", "--delete", action="store_true", help="Delete duplicates interactively or by rule")
     parser.add_argument("--precedence-rules", help="Path to precedence_rules.json for auto-deletion rules")
+    parser.add_argument("--hash-record", action="store_true", help="Store and update per-directory JSON hash records for resumability")
+    parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
     args = parser.parse_args()
 
     precedence_rules = load_precedence_rules(args.precedence_rules) if args.precedence_rules else None
 
-    check_for_duplicates(args.paths, delete=args.delete, precedence_rules=precedence_rules)
+    check_for_duplicates(
+        args.paths,
+        delete=args.delete,
+        precedence_rules=precedence_rules,
+        hash_record=args.hash_record,
+        record_name=args.record_name
+    )
 
 if __name__ == "__main__":
     main()
