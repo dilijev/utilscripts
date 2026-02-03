@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 import os
 import hashlib
+import argparse
 
 try: input = raw_input
 except NameError: pass
@@ -87,11 +88,15 @@ def check_for_duplicates(paths, delete=False, hash=hashlib.sha1):
                 else:
                     hashes[file_id] = full_path
 
-if sys.argv[1:]:
-    if sys.argv[1] == "-d":
-        if sys.argv[2:]:
-            check_for_duplicates(sys.argv[2:], delete=True)
-    else:
-        check_for_duplicates(sys.argv[1:])
-else:
-    print("Please pass the paths to check as parameters to the script")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Find and optionally delete duplicate files in given directories."
+    )
+    parser.add_argument("paths", nargs="+", help="Directories to check for duplicates")
+    parser.add_argument("-d", "--delete", action="store_true", help="Delete duplicates interactively")
+    args = parser.parse_args()
+
+    check_for_duplicates(args.paths, delete=args.delete)
+
+if __name__ == "__main__":
+    main()
