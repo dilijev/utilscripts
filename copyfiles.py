@@ -3,41 +3,50 @@
 from __future__ import print_function
 import os
 import sys
+import argparse
 from shutil import copyfile
 
-# TODO improve arg parsing (use a library)
-renames = sys.argv[1].strip()
+def main():
+    parser = argparse.ArgumentParser(
+        description="Copy files in batch from a CSV file (src,dst per line)."
+    )
+    parser.add_argument("renames", help="CSV file with lines: src,dst")
+    parser.add_argument("-f", "--force", action="store_true", help="Overwrite destination files if they exist")
+    args = parser.parse_args()
 
-force = False
-if len(sys.argv) > 2:
-    force = sys.argv[2].strip() == '-f'
-    if force:
+    if args.force:
         print("-f detected: will overwrite files")
 
-with open(renames, "r") as f:
-    while True:
-        x = f.readline()
+    with open(args.renames, "r") as f:
+        for x in f:
+            # Allow for empty lines in the input file -- only stop at end of file
+            if x is None or x.strip() == '':
+                continue
 
-        # TODO allow for empty lines in the input file -- only stop at end of file
-        if x is None or x.strip() == '': break
+            args_line = x.split(',')
 
-        args = x.split(',')
+            if len(args_line) < 2:
+                print("Skipping malformed line:", x.strip())
+                continue
 
-        a = args[0].strip()
-        b = args[1].strip()
+            a = args_line[0].strip()
+            b = args_line[1].strip()
 
-        print(a, end = " ")
-        print(" --> ", end = " ")
-        print(b)
+            print(a, end=" ")
+            print(" --> ", end=" ")
+            print(b)
 
-        try:
-            copyfile(a, b)
-        except FileNotFoundError as e:
-            print(e)
-        except FileExistsError as e:
-            if force:
-                print("Overwriting {}".format(b))
-                os.remove(b)
+            try:
                 copyfile(a, b)
-            else:
+            except FileNotFoundError as e:
                 print(e)
+            except FileExistsError as e:
+                if args.force:
+                    print("Overwriting {}".format(b))
+                    os.remove(b)
+                    copyfile(a, b)
+                else:
+                    print(e)
+
+if __name__ == "__main__":
+    main()
