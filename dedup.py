@@ -105,6 +105,17 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpat
         print(f"Using cached hash for {full_path}")
         return rec["hash"]
 
+def log_deletion(logfile, deleted, kept, reason):
+    try:
+        with open(logfile, "a") as f:
+            f.write(json.dumps({
+                "deleted": deleted,
+                "kept": kept,
+                "reason": reason
+            }) + "\n")
+    except Exception as e:
+        print(f"Could not write to log file {logfile}: {e}", file=sys.stderr)
+
 def check_for_duplicates(
     paths,
     delete=False,
@@ -113,7 +124,8 @@ def check_for_duplicates(
     record_hashes=False,
     record_name=".dedup_hashes.json",
     min_filesize=1024,  # Ignore files smaller than 1 KB by default
-    no_read_hashes=False
+    no_read_hashes=False,
+    log_file=None
 ):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
@@ -155,14 +167,25 @@ def check_for_duplicates(
                     print(f"\nDuplicate found:\n  [1] {full_path}\n  [2] {duplicate}")
                     # Precedence rules logic
                     keep, to_delete = None, None
+                    rule_used = None
                     if precedence_rules:
                         keep, to_delete = match_precedence_rule(precedence_rules, full_path, duplicate)
+                        if keep and to_delete:
+                            # Find the matching rule for logging
+                            for rule in precedence_rules:
+                                kp = os.path.normpath(rule.get("keep", ""))
+                                dp = os.path.normpath(rule.get("delete", ""))
+                                if (keep.startswith(kp) and to_delete.startswith(dp)) or (keep.startswith(dp) and to_delete.startswith(kp)):
+                                    rule_used = rule
+                                    break
                     if keep and to_delete:
                         print(f"Precedence rule: KEEP {keep}, DELETE {to_delete}")
                         if delete:
                             try:
                                 os.remove(to_delete)
                                 print(f"Deleted (by rule): {to_delete}")
+                                if log_file:
+                                    log_deletion(log_file, to_delete, keep, f"precedence rule {rule_used}")
                             except Exception as e:
                                 print(f"Could not delete {to_delete}: {e}")
                         else:
@@ -184,6 +207,8 @@ def check_for_duplicates(
 
                                 try:
                                     os.remove(path1)
+                                    if log_file:
+                                        log_deletion(log_file, path1, path2, "deleted newest in the same directory")
                                 except:
                                     print(f"Could not find file:\n  {path1}\nContinuing...")
                                 hashes[file_id] = path2
@@ -192,6 +217,8 @@ def check_for_duplicates(
                                 print(f"Deleting:\n  [2] {path2}")
                                 try:
                                     os.remove(path2)
+                                    if log_file:
+                                        log_deletion(log_file, path2, path1, "deleted newest in the same directory")
                                 except:
                                     print(f"Could not find file:\n  {path2}\nContinuing...")
                                 hashes[file_id] = path1
@@ -204,6 +231,8 @@ def check_for_duplicates(
 
                                 try:
                                     os.remove(path1)
+                                    if log_file:
+                                        log_deletion(log_file, path1, path2, "user choice")
                                 except:
                                     print(f"Could not find file:\n  {path1}\nContinuing...")
 
@@ -214,6 +243,8 @@ def check_for_duplicates(
 
                                 try:
                                     os.remove(path2)
+                                    if log_file:
+                                        log_deletion(log_file, path2, path1, "user choice")
                                 except:
                                     print(f"Could not find file:\n  {path2}\nContinuing...")
 
@@ -235,6 +266,7 @@ def main():
     parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
     parser.add_argument("--min-filesize", type=int, default=1024, help="Ignore files smaller than this many bytes (default: 1024, set to 0 to disable)")
     parser.add_argument("--no-read-hashes", action="store_true", help="Do not read from per-directory hash record files even if present")
+    parser.add_argument("--log-file", help="Append all deletions to this log file as JSON lines")
     args = parser.parse_args()
 
     if not args.record_hashes:
@@ -249,7 +281,8 @@ def main():
         record_hashes=args.record_hashes,
         record_name=args.record_name,
         min_filesize=args.min_filesize,
-        no_read_hashes=args.no_read_hashes
+        no_read_hashes=args.no_read_hashes,
+        log_file=args.log_file
     )
 
 if __name__ == "__main__":
