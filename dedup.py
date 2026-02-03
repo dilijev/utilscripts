@@ -103,7 +103,15 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpat
         save_dir_hash_record(dirpath, record_name, dir_record)
     return file_hash
 
-def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedence_rules=None, record_hashes=False, record_name=".dedup_hashes.json"):
+def check_for_duplicates(
+    paths,
+    delete=False,
+    hashfunc=hashlib.sha256,
+    precedence_rules=None,
+    record_hashes=False,
+    record_name=".dedup_hashes.json",
+    min_filesize=1024  # Ignore files smaller than 1 KB by default
+):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
     ignore_files = {".DS_Store", record_name}
@@ -128,6 +136,9 @@ def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedenc
                     continue
                 mtime = int(stat.st_mtime)
                 size = stat.st_size
+                if min_filesize > 0 and size < min_filesize:
+                    # Ignore small files
+                    continue
                 file_hash = get_file_hash(
                     full_path, hashfunc, mtime, size, dir_record, filename,
                     dirpath, record_name, record_hashes
@@ -186,7 +197,7 @@ def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedenc
                                 hashes[file_id] = path1
 
                         else:
-                            selection = input("Which to delete? [1/2]> ")
+                            selection = input("Which to delete? [1/2] (type anything else to keep both)> ")
 
                             if selection == "1":
                                 print("Deleting:\n  [1] %s" % path1)
@@ -222,6 +233,7 @@ def main():
     parser.add_argument("--precedence-rules", help="Path to precedence_rules.json for auto-deletion rules")
     parser.add_argument("--record-hashes", action="store_true", help="Store and update per-directory JSON hash records for resumability")
     parser.add_argument("--record-name", default=".dedup_hashes.json", help="Filename for per-directory hash record (default: .dedup_hashes.json)")
+    parser.add_argument("--min-filesize", type=int, default=1024, help="Ignore files smaller than this many bytes (default: 1024, set to 0 to disable)")
     args = parser.parse_args()
 
     precedence_rules = load_precedence_rules(args.precedence_rules) if args.precedence_rules else None
@@ -231,7 +243,8 @@ def main():
         delete=args.delete,
         precedence_rules=precedence_rules,
         record_hashes=args.record_hashes,
-        record_name=args.record_name
+        record_name=args.record_name,
+        min_filesize=args.min_filesize
     )
 
 if __name__ == "__main__":
