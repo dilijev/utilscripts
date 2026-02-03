@@ -52,10 +52,12 @@ def load_dir_hash_record(dirpath, record_name):
     if os.path.exists(record_path):
         try:
             with open(record_path, "r") as f:
-                return json.load(f)
+                record = json.load(f)
             print("Loaded hash record from %s" % record_path)
+            return record
         except Exception as e:
             print("Could not load hash record %s: %s" % (record_path, e))
+    print("Creating new hash record for %s" % dirpath)
     return {}
 
 def save_dir_hash_record(dirpath, record_name, record):
