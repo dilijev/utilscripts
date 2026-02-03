@@ -106,6 +106,7 @@ def get_file_hash(full_path, hashfunc, mtime, size, dir_record, filename, dirpat
 def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedence_rules=None, record_hashes=False, record_name=".dedup_hashes.json"):
     hashes = {}
     dir_records = {}  # dirpath -> {filename: {mtime, size, hash}}
+    ignore_files = {".DS_Store", record_name}
     for path in paths:
         for dirpath, dirnames, filenames in os.walk(path):
             print("Checking directory: %s" % dirpath)
@@ -117,6 +118,8 @@ def check_for_duplicates(paths, delete=False, hashfunc=hashlib.sha256, precedenc
             dir_records[dirpath] = dir_record
 
             for filename in filenames:
+                if filename in ignore_files:
+                    continue
                 full_path = os.path.join(dirpath, filename)
                 try:
                     stat = os.stat(full_path)
