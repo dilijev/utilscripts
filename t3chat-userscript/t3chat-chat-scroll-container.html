@@ -1,0 +1,1953 @@
+<div
+  id="chat-scroll-container"
+  class="absolute inset-0 overflow-y-scroll pt-8 sm:pt-3.5 print:visible print:static print:inset-auto print:block print:h-auto print:scroll-pb-0! print:overflow-visible print:pt-2 print:pb-0!"
+  style="
+    padding-bottom: 144px;
+    scrollbar-gutter: stable both-edges;
+    scroll-padding-bottom: 112px;
+  "
+>
+  <div
+    class="pointer-events-none fixed top-0 right-0 z-20 h-20 w-40 print:invisible max-sm:hidden print:hidden"
+    style="clip-path: inset(0px 12px 0px 0px)"
+  >
+    <div
+      class="group pointer-events-none absolute top-3.5 z-10 -mb-8 h-32 w-full origin-top transition-all ease-snappy"
+      style="box-shadow: 10px -10px 8px 2px var(--gradient-noise-top)"
+    >
+      <svg
+        class="absolute h-9 origin-top-left skew-x-30 overflow-visible -right-16 transform-gpu transition-transform duration-300 ease-snappy -translate-x-8"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 0 128 32"
+        xml:space="preserve"
+      >
+        <line
+          stroke="var(--gradient-noise-top)"
+          stroke-width="2px"
+          shape-rendering="optimizeQuality"
+          vector-effect="non-scaling-stroke"
+          stroke-linecap="round"
+          stroke-miterlimit="10"
+          x1="1"
+          y1="0"
+          x2="128"
+          y2="0"
+        ></line>
+        <path
+          stroke="var(--chat-border)"
+          class="translate-y-[0.5px]"
+          fill="var(--gradient-noise-top)"
+          shape-rendering="optimizeQuality"
+          stroke-width="1px"
+          stroke-linecap="round"
+          stroke-miterlimit="10"
+          vector-effect="non-scaling-stroke"
+          d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
+        ></path>
+      </svg>
+    </div>
+  </div>
+  <div
+    class="fixed top-safe-offset-2 z-20 print:invisible"
+    style="right: var(--firefox-scrollbar, 0.4rem)"
+  >
+    <div
+      class="pointer-events-none absolute inset-0 left-auto -z-10 w-0 rounded-md bg-transparent backdrop-blur-xs transition-[background-color,width] delay-0 duration-250 max-sm:bg-sidebar/50 max-sm:delay-125 max-sm:duration-125 max-sm:w-19"
+    ></div>
+    <div
+      class="flex flex-row items-center text-muted-foreground gap-0.5 rounded-md p-1 transition-all rounded-bl-xl"
+    >
+      <button
+        class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground z-0 size-8 transform-gpu transition-all duration-300 sm:ml-2 sm:rounded-bl-xl sm:bg-gradient-noise-top translate-x-0 opacity-100"
+        aria-label="Share thread"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-share size-4"
+          aria-hidden="true"
+        >
+          <path d="M12 2v13"></path>
+          <path d="m16 6-4-4-4 4"></path>
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+        </svg></button
+      ><button
+        class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground sm:bg-gradient-noise-top relative z-10 size-8"
+        type="button"
+        id="radix-_r_1s7_"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        data-state="closed"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-settings2 lucide-settings-2 size-4"
+          aria-hidden="true"
+        >
+          <path d="M14 17H5"></path>
+          <path d="M19 7h-9"></path>
+          <circle cx="17" cy="17" r="3"></circle>
+          <circle cx="7" cy="7" r="3"></circle>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="animate-fade-in">
+    <div
+      role="log"
+      aria-label="Chat messages"
+      aria-live="polite"
+      class="mx-auto flex w-full max-w-3xl flex-col space-y-12 px-4 pt-safe-offset-10 print:space-y-0 print:pt-0 pb-16 print:pb-0"
+    >
+      <div
+        data-message-id="7c0876b0-801d-4af8-84ff-fa1c739c94e7"
+        data-testid="7c0876b0-801d-4af8-84ff-fa1c739c94e7"
+        class="flex justify-end break-after-avoid"
+      >
+        <div
+          role="article"
+          aria-label="Your message"
+          class="group relative inline-block max-w-full rounded-xl border border-secondary/50 bg-secondary/50 wrap-break-word transition-colors **:[unicode-bidi:plaintext] md:max-w-[80%]"
+          dir="auto"
+          style="align-self: flex-start; transition-duration: 0.4s; width: auto"
+        >
+          <span class="sr-only">Your message: </span>
+          <form
+            class="flex max-w-full grow flex-col overflow-hidden px-4 py-3"
+            action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+          >
+            <div
+              class="prose max-w-none overflow-auto prose-pink dark:prose-invert prose-pre:m-0 prose-pre:bg-transparent prose-pre:p-0"
+              style="opacity: 1"
+            >
+              <p>test</p>
+            </div>
+            <div style="pointer-events: none; height: 0px; opacity: 0">
+              <div
+                class="@container mt-2 -mb-px flex w-full min-w-0 flex-row-reverse justify-between"
+              >
+                <div
+                  class="-mt-0.5 -mr-0.5 flex shrink-0 items-center justify-center gap-2"
+                  aria-label="Message actions"
+                >
+                  <div class="chat-input-search-mobile shrink-0">
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground data-[state=open]:border-pink-400/30 data-[state=open]:bg-pink-500/15"
+                      type="button"
+                      aria-label="More chat actions"
+                      id="radix-_r_2ao_"
+                      aria-haspopup="menu"
+                      aria-expanded="false"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-ellipsis size-4"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <button
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 text-sm whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border-reflect button-reflect bg-[rgb(162,59,103)] font-semibold shadow-sm hover:bg-[#d56698] active:bg-[rgb(162,59,103)] disabled:hover:bg-[rgb(162,59,103)] disabled:active:bg-[rgb(162,59,103)] dark:bg-primary/20 dark:hover:bg-pink-800/70 dark:active:bg-pink-800/40 dark:disabled:hover:bg-primary/20 dark:disabled:active:bg-primary/20 size-9 relative rounded-lg p-2 text-pink-50"
+                    type="submit"
+                    aria-label="Send message"
+                    data-state="closed"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-arrow-up size-5!"
+                      aria-hidden="true"
+                    >
+                      <path d="m5 12 7-7 7 7"></path>
+                      <path d="M12 19V5"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="flex min-w-0 items-center gap-2">
+                  <div class="min-w-0 flex-1">
+                    <button
+                      class="cursor-pointer justify-center font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 disabled:hover:bg-transparent disabled:hover:text-foreground h-8 text-xs chat-input-model-trigger relative flex min-w-0 items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:text-foreground @sm:gap-1.5 text-muted-foreground"
+                      type="button"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-label="Select model. Current model: Grok 4.1 Fast"
+                      aria-haspopup="dialog"
+                      aria-controls="radix-_r_2ar_"
+                      data-state="closed"
+                    >
+                      <div class="min-w-0 flex-1 text-left text-sm font-medium">
+                        <div class="truncate">Grok 4.1 Fast</div>
+                      </div>
+                      <span
+                        aria-label="Cost: Very low"
+                        class="inline-flex items-center gap-0 font-semibold tracking-tight text-muted-foreground/70 text-[10px]"
+                        ><span aria-hidden="true" class="font-mono tabular-nums"
+                          ><span>·</span><span>·</span><span>·</span></span
+                        ></span
+                      ><svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-chevron-down size-4 text-muted-foreground/60 transition-transform duration-200"
+                        aria-hidden="true"
+                      >
+                        <path d="m6 9 6 6 6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div
+                    class="chat-input-search-desktop min-w-0 items-center gap-2"
+                  >
+                    <div class="shrink-0">
+                      <button
+                        class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs py-1.5 h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground @sm:px-2.5"
+                        type="button"
+                        id="radix-_r_2as_"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        data-state="closed"
+                      >
+                        <div
+                          class="flex items-center gap-2 [&amp;&gt;svg]:size-4"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path
+                              d="M12,4.69c0-1.66,1.33-3,2.99-3.01,1.18,0,1.94,.82,2.65,1.65,.94,1.09,1.84,2.27,2.51,3.55,.82,1.55,1.08,3.17,1.27,4.89,.1,.94,.12,1.9-.02,2.84s-.5,1.7-.92,2.56c-.45,.94-.7,2.03-1.26,2.89-.57,.88-1.68,1.46-2.7,1.59-2.19,.28-4.2-1.26-4.48-3.45-.02-.17-.03-.34-.03-.51V4.69Z"
+                            ></path>
+                            <path
+                              d="M12,17.69c0,.17-.01,.34-.03,.51-.28,2.19-2.29,3.74-4.48,3.45-1.02-.13-2.13-.71-2.7-1.59-.56-.86-.81-1.96-1.26-2.89-.42-.87-.78-1.59-.92-2.56s-.12-1.9-.02-2.84c.19-1.72,.45-3.34,1.27-4.89,.67-1.28,1.57-2.46,2.51-3.55,.71-.83,1.47-1.66,2.65-1.65,1.66,0,3,1.35,2.99,3.01v13Z"
+                            ></path>
+                            <path
+                              d="M13.32,12.24c-.76-.27-1.28-.96-1.32-1.76-.04,.8-.57,1.5-1.32,1.76"
+                            ></path></svg
+                          ><span class="chat-input-inline-label">Low</span>
+                        </div>
+                      </button>
+                    </div>
+                    <div
+                      class="chat-input-search-shell flex h-8 items-center rounded-full border border-solid border-secondary-foreground/10"
+                      type="button"
+                      aria-haspopup="dialog"
+                      aria-expanded="false"
+                      aria-controls="radix-_r_2av_"
+                      data-state="closed"
+                    >
+                      <button
+                        class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground rounded-md text-xs chat-input-search-trigger relative h-8 flex-1 gap-2 border-0 px-2 text-muted-foreground @sm:px-2"
+                        type="button"
+                        aria-label="Enable search grounding"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide size-4"
+                        >
+                          <path
+                            d="M19.0809 19.0799C18.1512 20.0097 17.0474 20.7472 15.8326 21.2504C14.6178 21.7536 13.3158 22.0126 12.0009 22.0126C10.686 22.0126 9.38403 21.7536 8.16924 21.2504C6.95446 20.7472 5.85067 20.0097 4.92091 19.0799C3.99115 18.1502 3.25363 17.0464 2.75045 15.8316C2.24727 14.6168 1.98828 13.3148 1.98828 11.9999C1.98828 10.685 2.24727 9.38304 2.75045 8.16825C3.25363 6.95346 3.99115 5.84968 4.92091 4.91992"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M15.8203 9.80648C15.3735 6.8922 14.0451 4.16416 11.9877 2.00391C11.3017 2.72421 10.6968 3.50764 10.1785 4.34005"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M15.4961 15.7512C14.8738 18.0772 13.6765 20.2317 11.9886 22.004C9.42085 19.3079 7.98862 15.7273 7.98862 12.004C7.98862 10.8719 8.12105 9.75289 8.37756 8.66797"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M21.9883 12.0039H17.8647"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M11.9805 12.0039H1.98703"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M2 2L22 22"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M8.35156 2.68916C10.1622 1.98199 12.1397 1.81784 14.0421 2.21681C15.9445 2.61577 17.6895 3.56055 19.0634 4.93557C20.4374 6.31059 21.3808 8.05624 21.7783 9.95899C22.1758 11.8617 22.0101 13.8391 21.3016 15.6492"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path></svg
+                        ><span class="chat-input-inline-label">Search</span>
+                      </button>
+                    </div>
+                    <div class="shrink-0">
+                      <label
+                        class="inline-flex items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs cursor-pointer h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground @sm:px-2.5"
+                        aria-label="Attach a file"
+                        data-state="closed"
+                        ><input multiple="" class="sr-only" type="file" />
+                        <div class="flex gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-paperclip size-4"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"
+                            ></path></svg
+                          ><span class="chat-input-inline-label @sm:ml-0.5"
+                            >Attach</span
+                          >
+                        </div></label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div
+            class="absolute right-0 mt-2 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100 md:group-focus:opacity-100 md:group-has-aria-[describedby]:opacity-100 print:hidden"
+          >
+            <button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+              aria-label="Retry message"
+              data-action="retry"
+              data-state="closed"
+              type="button"
+              id="radix-_r_2b3_"
+              aria-haspopup="menu"
+              aria-expanded="false"
+            >
+              <div class="relative size-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-refresh-ccw absolute inset-0"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                  ></path>
+                  <path d="M3 3v5h5"></path>
+                  <path
+                    d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
+                  ></path>
+                  <path d="M16 16h5v5"></path></svg
+                ><span class="sr-only">Retry</span>
+              </div></button
+            ><span
+              class="inline-flex"
+              data-state="closed"
+              type="button"
+              id="radix-_r_2b6_"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              ><button
+                class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                type="button"
+                aria-label="Branch off message"
+              >
+                <div class="relative size-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide h-4 w-4 absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                  >
+                    <path
+                      d="M6.02,5.78m0,15.31V4.55m0,0v-1.91m0,3.14v-1.23m0,1.23c0,1.61,1.21,3.11,3.2,3.94l4.58,1.92c1.98,.83,3.2,2.32,3.2,3.94v3.84"
+                    ></path>
+                    <path d="M20.53,17.59l-3.41,3.66-3.66-3.41"></path></svg
+                  ><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                </div></button></span
+            ><button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-lg p-0"
+              type="button"
+              aria-label="Edit message"
+              data-state="closed"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-square-pen size-4"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                ></path>
+                <path
+                  d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+                ></path>
+              </svg></button
+            ><button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-lg p-0"
+              type="button"
+              aria-label="Copy message"
+              data-state="closed"
+            >
+              <div class="relative size-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                  aria-hidden="true"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path
+                    d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                  ></path></svg
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        data-message-id="abc39647-ee6d-49bc-9ae9-7e5808ee5b5a"
+        data-testid="abc39647-ee6d-49bc-9ae9-7e5808ee5b5a"
+        class="flex justify-start break-after-avoid"
+      >
+        <div
+          class="group @container relative w-full max-w-full space-y-4 wrap-break-word"
+          dir="auto"
+        >
+          <div class="flex items-center gap-2 print:hidden">
+            <div
+              data-slot="accordion"
+              class="w-full"
+              data-orientation="vertical"
+            >
+              <div
+                data-state="closed"
+                data-orientation="vertical"
+                data-slot="accordion-item"
+                class="border-b last:border-b-0"
+              >
+                <h3
+                  data-orientation="vertical"
+                  data-state="closed"
+                  class="flex"
+                >
+                  <button
+                    type="button"
+                    aria-controls="radix-_r_2bh_"
+                    aria-expanded="false"
+                    data-state="closed"
+                    data-orientation="vertical"
+                    id="radix-_r_2bg_"
+                    data-slot="accordion-trigger"
+                    class="flex-1 rounded-md py-4 text-left text-sm font-medium outline-hidden transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&amp;[data-state=open]&gt;svg:last-child]:rotate-180 flex items-center justify-start gap-2 hover:no-underline print:block"
+                    data-radix-collection-item=""
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-brain size-4"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 18V5"></path>
+                      <path
+                        d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"
+                      ></path>
+                      <path
+                        d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"
+                      ></path>
+                      <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"></path>
+                      <path d="M18 18a4 4 0 0 0 2-7.464"></path>
+                      <path
+                        d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"
+                      ></path>
+                      <path d="M6 18a4 4 0 0 1-2-7.464"></path>
+                      <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"></path></svg
+                    ><span class="text-sm font-medium">Reasoning</span
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-chevron-down pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200"
+                      aria-hidden="true"
+                    >
+                      <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                  </button>
+                </h3>
+                <div
+                  data-state="closed"
+                  id="radix-_r_2bh_"
+                  hidden=""
+                  role="region"
+                  aria-labelledby="radix-_r_2bg_"
+                  data-orientation="vertical"
+                  data-slot="accordion-content"
+                  class="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                  style="
+                    --radix-accordion-content-height: var(
+                      --radix-collapsible-content-height
+                    );
+                    --radix-accordion-content-width: var(
+                      --radix-collapsible-content-width
+                    );
+                  "
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div
+            role="article"
+            aria-label="Assistant message"
+            class="prose max-w-none prose-pink **:[unicode-bidi:plaintext] dark:prose-invert prose-pre:m-0 prose-pre:bg-transparent prose-pre:p-0 [&amp;&gt;:nth-child(3)]:mt-0"
+          >
+            <span class="sr-only">Assistant Reply: </span>
+            <div class="group" node="[object Object]">
+              <div
+                class="relative mt-2 flex w-full max-w-full min-w-[calc(min(var(--language-length),12ch)+3rem)] flex-col pt-9 xs:min-w-[calc(var(--language-length)+8rem)]"
+                style="--language-length: 4ch"
+              >
+                <div
+                  class="absolute inset-x-0 top-0 flex h-9 items-center justify-between rounded-t bg-secondary px-4 py-2 text-sm text-secondary-foreground"
+                >
+                  <span
+                    data-language-id="text"
+                    class="font-mono max-xs:max-w-[12ch] max-xs:truncate"
+                    >text</span
+                  >
+                  <div class="flex flex-nowrap print:hidden">
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-md bg-secondary p-2 transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-download size-4"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 15V3"></path>
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <path d="m7 10 5 5 5-5"></path>
+                      </svg></button
+                    ><button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs mr-6 size-8 rounded-md bg-secondary p-2 transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      aria-label="Enable text wrapping"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-text-align-start size-4"
+                        aria-hidden="true"
+                      >
+                        <path d="M21 5H3"></path>
+                        <path d="M15 12H3"></path>
+                        <path d="M17 19H3"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="sticky top-7 left-auto z-1 ml-auto h-1.5 w-8 transition-[top] max-sm:top-14! print:hidden top-[42px]! sm:max-[1170px]:top-20"
+                >
+                  <div
+                    class="absolute -top-[calc(2rem+2px)] right-2 flex gap-1"
+                  >
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-md bg-secondary p-2 text-secondary-foreground backdrop-blur transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      aria-label="Copy code to clipboard"
+                    >
+                      <div class="relative size-4">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                          aria-hidden="true"
+                        >
+                          <rect
+                            width="14"
+                            height="14"
+                            x="8"
+                            y="8"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path
+                            d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                          ></path></svg
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                          aria-hidden="true"
+                        >
+                          <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+                <div class="-mb-1.5 print:hidden"></div>
+                <div
+                  class="shiki not-prose relative bg-chat-accent text-sm font-[450] text-secondary-foreground [&amp;_pre]:max-w-full [&amp;_pre]:overflow-auto [&amp;_pre]:bg-transparent! [&amp;_pre]:px-[1em] [&amp;_pre]:py-[1em] print:[&amp;_pre]:whitespace-pre-wrap in-[.reasoning]:rounded-b-sm in-[.reasoning]:border in-[.reasoning]:border-secondary"
+                >
+                  <pre>
+2024-10-04T12:00:00-08:00
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+            <p>Test received, Doug. What's up?</p>
+          </div>
+          <div
+            class="absolute left-0 -mt-1! -ml-0.5 flex w-full flex-row justify-start gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100 md:group-focus:opacity-100 md:group-has-aria-expanded:opacity-100 md:group-has-aria-[describedby]:opacity-100 md:group-has-data-[state=&quot;delayed-open&quot;]:opacity-100 md:group-has-data-[state=&quot;instant-open&quot;]:opacity-100 print:hidden"
+          >
+            <div class="flex w-full flex-row justify-between gap-1 sm:w-auto">
+              <div class="flex items-center gap-1">
+                <button
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                  type="button"
+                  aria-label="Copy response to clipboard"
+                  data-state="closed"
+                >
+                  <div class="relative size-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        width="14"
+                        height="14"
+                        x="8"
+                        y="8"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <path
+                        d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                      ></path></svg
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                      aria-hidden="true"
+                    >
+                      <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                  </div></button
+                ><span
+                  class="inline-flex"
+                  data-state="closed"
+                  type="button"
+                  id="radix-_r_2cp_"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  ><button
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                    type="button"
+                    aria-label="Branch off message"
+                  >
+                    <div class="relative size-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide h-4 w-4 absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                      >
+                        <path
+                          d="M6.02,5.78m0,15.31V4.55m0,0v-1.91m0,3.14v-1.23m0,1.23c0,1.61,1.21,3.11,3.2,3.94l4.58,1.92c1.98,.83,3.2,2.32,3.2,3.94v3.84"
+                        ></path>
+                        <path d="M20.53,17.59l-3.41,3.66-3.66-3.41"></path></svg
+                      ><svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    </div></button></span
+                ><button
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                  aria-label="Retry message"
+                  data-action="retry"
+                  data-state="closed"
+                  type="button"
+                  id="radix-_r_2cs_"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                >
+                  <div class="relative size-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-refresh-ccw absolute inset-0"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                      ></path>
+                      <path d="M3 3v5h5"></path>
+                      <path
+                        d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
+                      ></path>
+                      <path d="M16 16h5v5"></path></svg
+                    ><span class="sr-only">Retry</span>
+                  </div>
+                </button>
+                <div
+                  class="flex items-center gap-1 text-xs text-muted-foreground @md:hidden"
+                >
+                  <div class="flex items-center gap-1">
+                    <span class="font-medium">Grok 4.1 Fast</span
+                    ><span> (low)</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="radix-_r_2cu_"
+                data-state="closed"
+                class="flex h-8 w-8 flex-row items-center justify-center @md:hidden"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-info size-4 rounded-lg p-0 text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="hidden flex-row gap-2 @md:flex">
+              <div
+                class="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <div class="flex items-center gap-1">
+                  <span class="font-medium">Grok 4.1 Fast</span
+                  ><span> (low)</span>
+                </div>
+              </div>
+              <div
+                class="flex gap-2 text-xs text-muted-foreground ml-1 flex-row"
+              >
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-zap h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"
+                    ></path></svg
+                  ><span>113.03 tok/sec</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-cpu h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 20v2"></path>
+                    <path d="M12 2v2"></path>
+                    <path d="M17 20v2"></path>
+                    <path d="M17 2v2"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M2 17h2"></path>
+                    <path d="M2 7h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="M20 17h2"></path>
+                    <path d="M20 7h2"></path>
+                    <path d="M7 20v2"></path>
+                    <path d="M7 2v2"></path>
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <rect x="8" y="8" width="8" height="8" rx="1"></rect></svg
+                  ><span>379 tokens</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-clock h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 6v6l4 2"></path>
+                    <circle cx="12" cy="12" r="10"></circle></svg
+                  ><span>Time-to-First: 0.51 sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        data-message-id="d05029c5-904c-481f-95a7-a36804568067"
+        data-testid="d05029c5-904c-481f-95a7-a36804568067"
+        class="flex justify-end break-after-avoid"
+      >
+        <div
+          role="article"
+          aria-label="Your message"
+          class="group relative inline-block max-w-full rounded-xl border border-secondary/50 bg-secondary/50 wrap-break-word transition-colors **:[unicode-bidi:plaintext] md:max-w-[80%]"
+          dir="auto"
+          style="align-self: flex-start; transition-duration: 0.4s; width: auto"
+        >
+          <span class="sr-only">Your message: </span>
+          <form
+            class="flex max-w-full grow flex-col overflow-hidden px-4 py-3"
+            action="javascript:throw new Error('A React form was unexpectedly submitted. If you called form.submit() manually, consider using form.requestSubmit() instead. If you\'re trying to use event.stopPropagation() in a submit event handler, consider also calling event.preventDefault().')"
+          >
+            <div
+              class="prose max-w-none overflow-auto prose-pink dark:prose-invert prose-pre:m-0 prose-pre:bg-transparent prose-pre:p-0"
+              style="opacity: 1"
+            >
+              <p>test message 2</p>
+            </div>
+            <div style="pointer-events: none; height: 0px; opacity: 0">
+              <div
+                class="@container mt-2 -mb-px flex w-full min-w-0 flex-row-reverse justify-between"
+              >
+                <div
+                  class="-mt-0.5 -mr-0.5 flex shrink-0 items-center justify-center gap-2"
+                  aria-label="Message actions"
+                >
+                  <div class="chat-input-search-mobile shrink-0">
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground data-[state=open]:border-pink-400/30 data-[state=open]:bg-pink-500/15"
+                      type="button"
+                      aria-label="More chat actions"
+                      id="radix-_r_2f5_"
+                      aria-haspopup="menu"
+                      aria-expanded="false"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-ellipsis size-4"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <button
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 text-sm whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border-reflect button-reflect bg-[rgb(162,59,103)] font-semibold shadow-sm hover:bg-[#d56698] active:bg-[rgb(162,59,103)] disabled:hover:bg-[rgb(162,59,103)] disabled:active:bg-[rgb(162,59,103)] dark:bg-primary/20 dark:hover:bg-pink-800/70 dark:active:bg-pink-800/40 dark:disabled:hover:bg-primary/20 dark:disabled:active:bg-primary/20 size-9 relative rounded-lg p-2 text-pink-50"
+                    type="submit"
+                    aria-label="Send message"
+                    data-state="closed"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-arrow-up size-5!"
+                      aria-hidden="true"
+                    >
+                      <path d="m5 12 7-7 7 7"></path>
+                      <path d="M12 19V5"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="flex min-w-0 items-center gap-2">
+                  <div class="min-w-0 flex-1">
+                    <button
+                      class="cursor-pointer justify-center font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 disabled:hover:bg-transparent disabled:hover:text-foreground h-8 text-xs chat-input-model-trigger relative flex min-w-0 items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:text-foreground @sm:gap-1.5 text-muted-foreground"
+                      type="button"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-label="Select model. Current model: Grok 4.1 Fast"
+                      aria-haspopup="dialog"
+                      aria-controls="radix-_r_2f8_"
+                      data-state="closed"
+                    >
+                      <div class="min-w-0 flex-1 text-left text-sm font-medium">
+                        <div class="truncate">Grok 4.1 Fast</div>
+                      </div>
+                      <span
+                        aria-label="Cost: Very low"
+                        class="inline-flex items-center gap-0 font-semibold tracking-tight text-muted-foreground/70 text-[10px]"
+                        ><span aria-hidden="true" class="font-mono tabular-nums"
+                          ><span>·</span><span>·</span><span>·</span></span
+                        ></span
+                      ><svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-chevron-down size-4 text-muted-foreground/60 transition-transform duration-200"
+                        aria-hidden="true"
+                      >
+                        <path d="m6 9 6 6 6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div
+                    class="chat-input-search-desktop min-w-0 items-center gap-2"
+                  >
+                    <div class="shrink-0">
+                      <button
+                        class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs py-1.5 h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground @sm:px-2.5"
+                        type="button"
+                        id="radix-_r_2f9_"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        data-state="closed"
+                      >
+                        <div
+                          class="flex items-center gap-2 [&amp;&gt;svg]:size-4"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path
+                              d="M12,4.69c0-1.66,1.33-3,2.99-3.01,1.18,0,1.94,.82,2.65,1.65,.94,1.09,1.84,2.27,2.51,3.55,.82,1.55,1.08,3.17,1.27,4.89,.1,.94,.12,1.9-.02,2.84s-.5,1.7-.92,2.56c-.45,.94-.7,2.03-1.26,2.89-.57,.88-1.68,1.46-2.7,1.59-2.19,.28-4.2-1.26-4.48-3.45-.02-.17-.03-.34-.03-.51V4.69Z"
+                            ></path>
+                            <path
+                              d="M12,17.69c0,.17-.01,.34-.03,.51-.28,2.19-2.29,3.74-4.48,3.45-1.02-.13-2.13-.71-2.7-1.59-.56-.86-.81-1.96-1.26-2.89-.42-.87-.78-1.59-.92-2.56s-.12-1.9-.02-2.84c.19-1.72,.45-3.34,1.27-4.89,.67-1.28,1.57-2.46,2.51-3.55,.71-.83,1.47-1.66,2.65-1.65,1.66,0,3,1.35,2.99,3.01v13Z"
+                            ></path>
+                            <path
+                              d="M13.32,12.24c-.76-.27-1.28-.96-1.32-1.76-.04,.8-.57,1.5-1.32,1.76"
+                            ></path></svg
+                          ><span class="chat-input-inline-label">Low</span>
+                        </div>
+                      </button>
+                    </div>
+                    <div
+                      class="chat-input-search-shell flex h-8 items-center rounded-full border border-solid border-secondary-foreground/10"
+                      type="button"
+                      aria-haspopup="dialog"
+                      aria-expanded="false"
+                      aria-controls="radix-_r_2fc_"
+                      data-state="closed"
+                    >
+                      <button
+                        class="inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground rounded-md text-xs chat-input-search-trigger relative h-8 flex-1 gap-2 border-0 px-2 text-muted-foreground @sm:px-2"
+                        type="button"
+                        aria-label="Enable search grounding"
+                        data-state="closed"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide size-4"
+                        >
+                          <path
+                            d="M19.0809 19.0799C18.1512 20.0097 17.0474 20.7472 15.8326 21.2504C14.6178 21.7536 13.3158 22.0126 12.0009 22.0126C10.686 22.0126 9.38403 21.7536 8.16924 21.2504C6.95446 20.7472 5.85067 20.0097 4.92091 19.0799C3.99115 18.1502 3.25363 17.0464 2.75045 15.8316C2.24727 14.6168 1.98828 13.3148 1.98828 11.9999C1.98828 10.685 2.24727 9.38304 2.75045 8.16825C3.25363 6.95346 3.99115 5.84968 4.92091 4.91992"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M15.8203 9.80648C15.3735 6.8922 14.0451 4.16416 11.9877 2.00391C11.3017 2.72421 10.6968 3.50764 10.1785 4.34005"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M15.4961 15.7512C14.8738 18.0772 13.6765 20.2317 11.9886 22.004C9.42085 19.3079 7.98862 15.7273 7.98862 12.004C7.98862 10.8719 8.12105 9.75289 8.37756 8.66797"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M21.9883 12.0039H17.8647"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M11.9805 12.0039H1.98703"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M2 2L22 22"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M8.35156 2.68916C10.1622 1.98199 12.1397 1.81784 14.0421 2.21681C15.9445 2.61577 17.6895 3.56055 19.0634 4.93557C20.4374 6.31059 21.3808 8.05624 21.7783 9.95899C22.1758 11.8617 22.0101 13.8391 21.3016 15.6492"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          ></path></svg
+                        ><span class="chat-input-inline-label">Search</span>
+                      </button>
+                    </div>
+                    <div class="shrink-0">
+                      <label
+                        class="inline-flex items-center justify-center font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs cursor-pointer h-8 gap-2 rounded-full border border-solid border-secondary-foreground/10 px-2 text-muted-foreground @sm:px-2.5"
+                        aria-label="Attach a file"
+                        data-state="closed"
+                        ><input multiple="" class="sr-only" type="file" />
+                        <div class="flex gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-paperclip size-4"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"
+                            ></path></svg
+                          ><span class="chat-input-inline-label @sm:ml-0.5"
+                            >Attach</span
+                          >
+                        </div></label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div
+            class="absolute right-0 mt-2 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100 md:group-focus:opacity-100 md:group-has-aria-[describedby]:opacity-100 print:hidden"
+          >
+            <button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+              aria-label="Retry message"
+              data-action="retry"
+              data-state="closed"
+              type="button"
+              id="radix-_r_2fg_"
+              aria-haspopup="menu"
+              aria-expanded="false"
+            >
+              <div class="relative size-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-refresh-ccw absolute inset-0"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                  ></path>
+                  <path d="M3 3v5h5"></path>
+                  <path
+                    d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
+                  ></path>
+                  <path d="M16 16h5v5"></path></svg
+                ><span class="sr-only">Retry</span>
+              </div></button
+            ><span
+              class="inline-flex"
+              data-state="closed"
+              type="button"
+              id="radix-_r_2fj_"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              ><button
+                class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                type="button"
+                aria-label="Branch off message"
+              >
+                <div class="relative size-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide h-4 w-4 absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                  >
+                    <path
+                      d="M6.02,5.78m0,15.31V4.55m0,0v-1.91m0,3.14v-1.23m0,1.23c0,1.61,1.21,3.11,3.2,3.94l4.58,1.92c1.98,.83,3.2,2.32,3.2,3.94v3.84"
+                    ></path>
+                    <path d="M20.53,17.59l-3.41,3.66-3.66-3.41"></path></svg
+                  ><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                </div></button></span
+            ><button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-lg p-0"
+              type="button"
+              aria-label="Edit message"
+              data-state="closed"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-square-pen size-4"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                ></path>
+                <path
+                  d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+                ></path>
+              </svg></button
+            ><button
+              class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-lg p-0"
+              type="button"
+              aria-label="Copy message"
+              data-state="closed"
+            >
+              <div class="relative size-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                  aria-hidden="true"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path
+                    d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                  ></path></svg
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        data-message-id="b286f9dc-9043-4a66-8f0d-26aa99596656"
+        data-testid="b286f9dc-9043-4a66-8f0d-26aa99596656"
+        class="flex justify-start min-h-[calc(100vh-20rem)] break-after-avoid"
+      >
+        <div
+          class="group @container relative w-full max-w-full space-y-4 wrap-break-word"
+          dir="auto"
+        >
+          <div class="flex items-center gap-2 print:hidden">
+            <div
+              data-slot="accordion"
+              class="w-full"
+              data-orientation="vertical"
+            >
+              <div
+                data-state="closed"
+                data-orientation="vertical"
+                data-slot="accordion-item"
+                class="border-b last:border-b-0"
+              >
+                <h3
+                  data-orientation="vertical"
+                  data-state="closed"
+                  class="flex"
+                >
+                  <button
+                    type="button"
+                    aria-controls="radix-_r_2gp_"
+                    aria-expanded="false"
+                    data-state="closed"
+                    data-orientation="vertical"
+                    id="radix-_r_2go_"
+                    data-slot="accordion-trigger"
+                    class="flex-1 rounded-md py-4 text-left text-sm font-medium outline-hidden transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&amp;[data-state=open]&gt;svg:last-child]:rotate-180 flex items-center justify-start gap-2 hover:no-underline print:block"
+                    data-radix-collection-item=""
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-brain size-4"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 18V5"></path>
+                      <path
+                        d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"
+                      ></path>
+                      <path
+                        d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"
+                      ></path>
+                      <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"></path>
+                      <path d="M18 18a4 4 0 0 0 2-7.464"></path>
+                      <path
+                        d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"
+                      ></path>
+                      <path d="M6 18a4 4 0 0 1-2-7.464"></path>
+                      <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"></path></svg
+                    ><span class="text-sm font-medium">Reasoning</span
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-chevron-down pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200"
+                      aria-hidden="true"
+                    >
+                      <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                  </button>
+                </h3>
+                <div
+                  data-state="closed"
+                  id="radix-_r_2gp_"
+                  hidden=""
+                  role="region"
+                  aria-labelledby="radix-_r_2go_"
+                  data-orientation="vertical"
+                  data-slot="accordion-content"
+                  class="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                  style="
+                    --radix-accordion-content-height: var(
+                      --radix-collapsible-content-height
+                    );
+                    --radix-accordion-content-width: var(
+                      --radix-collapsible-content-width
+                    );
+                  "
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div
+            role="article"
+            aria-label="Assistant message"
+            class="prose max-w-none prose-pink **:[unicode-bidi:plaintext] dark:prose-invert prose-pre:m-0 prose-pre:bg-transparent prose-pre:p-0 [&amp;&gt;:nth-child(3)]:mt-0"
+          >
+            <span class="sr-only">Assistant Reply: </span>
+            <div class="group" node="[object Object]">
+              <div
+                class="relative mt-2 flex w-full max-w-full min-w-[calc(min(var(--language-length),12ch)+3rem)] flex-col pt-9 xs:min-w-[calc(var(--language-length)+8rem)]"
+                style="--language-length: 4ch"
+              >
+                <div
+                  class="absolute inset-x-0 top-0 flex h-9 items-center justify-between rounded-t bg-secondary px-4 py-2 text-sm text-secondary-foreground"
+                >
+                  <span
+                    data-language-id="text"
+                    class="font-mono max-xs:max-w-[12ch] max-xs:truncate"
+                    >text</span
+                  >
+                  <div class="flex flex-nowrap print:hidden">
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-md bg-secondary p-2 transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-download size-4"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 15V3"></path>
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <path d="m7 10 5 5 5-5"></path>
+                      </svg></button
+                    ><button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs mr-6 size-8 rounded-md bg-secondary p-2 transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      aria-label="Enable text wrapping"
+                      data-state="closed"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-text-align-start size-4"
+                        aria-hidden="true"
+                      >
+                        <path d="M21 5H3"></path>
+                        <path d="M15 12H3"></path>
+                        <path d="M17 19H3"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="sticky top-7 left-auto z-1 ml-auto h-1.5 w-8 transition-[top] max-sm:top-14! print:hidden top-[42px]! sm:max-[1170px]:top-20"
+                >
+                  <div
+                    class="absolute -top-[calc(2rem+2px)] right-2 flex gap-1"
+                  >
+                    <button
+                      class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 disabled:hover:bg-transparent disabled:hover:text-foreground text-xs size-8 rounded-md bg-secondary p-2 text-secondary-foreground backdrop-blur transition-colors hover:bg-muted-foreground/10 hover:text-muted-foreground dark:hover:bg-muted-foreground/5"
+                      type="button"
+                      aria-label="Copy code to clipboard"
+                    >
+                      <div class="relative size-4">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                          aria-hidden="true"
+                        >
+                          <rect
+                            width="14"
+                            height="14"
+                            x="8"
+                            y="8"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path
+                            d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                          ></path></svg
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                          aria-hidden="true"
+                        >
+                          <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+                <div class="-mb-1.5 print:hidden"></div>
+                <div
+                  class="shiki not-prose relative bg-chat-accent text-sm font-[450] text-secondary-foreground [&amp;_pre]:max-w-full [&amp;_pre]:overflow-auto [&amp;_pre]:bg-transparent! [&amp;_pre]:px-[1em] [&amp;_pre]:py-[1em] print:[&amp;_pre]:whitespace-pre-wrap in-[.reasoning]:rounded-b-sm in-[.reasoning]:border in-[.reasoning]:border-secondary"
+                >
+                  <pre>
+2026-03-06T17:01:00-08:00
+</pre
+                  >
+                </div>
+              </div>
+            </div>
+            <p>Test message 2 acknowledged, Doug. Ready for the real query?</p>
+          </div>
+          <div
+            class="absolute left-0 -mt-1! -ml-0.5 flex w-full flex-row justify-start gap-1 opacity-100 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100 md:group-focus:opacity-100 md:group-has-aria-expanded:opacity-100 md:group-has-aria-[describedby]:opacity-100 md:group-has-data-[state=&quot;delayed-open&quot;]:opacity-100 md:group-has-data-[state=&quot;instant-open&quot;]:opacity-100 print:hidden"
+          >
+            <div class="flex w-full flex-row justify-between gap-1 sm:w-auto">
+              <div class="flex items-center gap-1">
+                <button
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                  type="button"
+                  aria-label="Copy response to clipboard"
+                  data-state="closed"
+                >
+                  <div class="relative size-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-copy absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        width="14"
+                        height="14"
+                        x="8"
+                        y="8"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <path
+                        d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                      ></path></svg
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                      aria-hidden="true"
+                    >
+                      <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                  </div></button
+                ><span
+                  class="inline-flex"
+                  data-state="closed"
+                  type="button"
+                  id="radix-_r_2hd_"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  ><button
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                    type="button"
+                    aria-label="Branch off message"
+                  >
+                    <div class="relative size-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide h-4 w-4 absolute inset-0 transition-all duration-200 ease-snappy scale-100 opacity-100"
+                      >
+                        <path
+                          d="M6.02,5.78m0,15.31V4.55m0,0v-1.91m0,3.14v-1.23m0,1.23c0,1.61,1.21,3.11,3.2,3.94l4.58,1.92c1.98,.83,3.2,2.32,3.2,3.94v3.84"
+                        ></path>
+                        <path d="M20.53,17.59l-3.41,3.66-3.66-3.41"></path></svg
+                      ><svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-check absolute inset-0 transition-all duration-200 ease-snappy scale-0 opacity-0"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 6 9 17l-5-5"></path>
+                      </svg>
+                    </div></button></span
+                ><button
+                  class="inline-flex cursor-pointer items-center justify-center gap-2 font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-muted/40 hover:text-foreground disabled:hover:bg-transparent disabled:hover:text-foreground text-xs h-8 w-8 rounded-lg p-0"
+                  aria-label="Retry message"
+                  data-action="retry"
+                  data-state="closed"
+                  type="button"
+                  id="radix-_r_2hg_"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                >
+                  <div class="relative size-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-refresh-ccw absolute inset-0"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                      ></path>
+                      <path d="M3 3v5h5"></path>
+                      <path
+                        d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"
+                      ></path>
+                      <path d="M16 16h5v5"></path></svg
+                    ><span class="sr-only">Retry</span>
+                  </div>
+                </button>
+                <div
+                  class="flex items-center gap-1 text-xs text-muted-foreground @md:hidden"
+                >
+                  <div class="flex items-center gap-1">
+                    <span class="font-medium">Grok 4.1 Fast</span
+                    ><span> (low)</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="radix-_r_2hi_"
+                data-state="closed"
+                class="flex h-8 w-8 flex-row items-center justify-center @md:hidden"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-info size-4 rounded-lg p-0 text-muted-foreground"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="hidden flex-row gap-2 @md:flex">
+              <div
+                class="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <div class="flex items-center gap-1">
+                  <span class="font-medium">Grok 4.1 Fast</span
+                  ><span> (low)</span>
+                </div>
+              </div>
+              <div
+                class="flex gap-2 text-xs text-muted-foreground ml-1 flex-row"
+              >
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-zap h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"
+                    ></path></svg
+                  ><span>109.83 tok/sec</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-cpu h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 20v2"></path>
+                    <path d="M12 2v2"></path>
+                    <path d="M17 20v2"></path>
+                    <path d="M17 2v2"></path>
+                    <path d="M2 12h2"></path>
+                    <path d="M2 17h2"></path>
+                    <path d="M2 7h2"></path>
+                    <path d="M20 12h2"></path>
+                    <path d="M20 17h2"></path>
+                    <path d="M20 7h2"></path>
+                    <path d="M7 20v2"></path>
+                    <path d="M7 2v2"></path>
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <rect x="8" y="8" width="8" height="8" rx="1"></rect></svg
+                  ><span>631 tokens</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-clock h-3 w-3"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 6v6l4 2"></path>
+                    <circle cx="12" cy="12" r="10"></circle></svg
+                  ><span>Time-to-First: 2.5 sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
