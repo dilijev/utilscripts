@@ -41,6 +41,7 @@ MAGIC_BYTES = {
         (b'\x00\x00\x00\x20\x66\x74\x79\x70\x69\x73\x6f\x6d', 0),   # ??? ftypisom
         (b'\x00\x00\x00\x20\x66\x74\x79\x70\x6d\x70\x34\x32', 0),   # ??? ftypmp42
         (b'\x00\x00\x00\x18\x66\x74\x79\x70\x6d\x70\x34\x32', 0),   # ???? ftypmp42
+        (b'\x00\x00\x00\x28\x66\x74\x79\x70\x6d\x70\x34\x31', 0),   # ???? ftypmp41
     ],
     'm4a': [
         (b'\x00\x00\x00\x20\x66\x74\x79\x70\x4d\x34\x41\x20', 0),   # ??? ftypM4A
@@ -65,8 +66,20 @@ TYPE_TO_EXTENSIONS = {
 }
 
 
-def detect_file_type(filepath: Path) -> Optional[str]:
-    """Detect file type by reading magic bytes."""
+def bytes_to_ascii(data: bytes) -> str:
+    """Convert bytes to ASCII representation, using ? for non-printable."""
+    return ''.join(chr(b) if 32 <= b < 127 else '?' for b in data)
+
+
+def bytes_to_xxd(data: bytes) -> str:
+    """Convert bytes to xxd format (hex pairs with space separation)."""
+    hex_str = ' '.join(f'{b:02x}' for b in data)
+    ascii_str = ''.join(chr(b) if 32 <= b < 127 else '.' for b in data)
+    return f"{hex_str}  {ascii_str}"
+
+
+def detect_file_type(filepath: Path) -> Tuple[str, str, str]:
+    """Detect file type by reading magic bytes. Returns (type, magic_ascii, magic_xxd)."""
     try:
         with open(filepath, 'rb') as f:
             for file_type, patterns in MAGIC_BYTES.items():
@@ -74,10 +87,10 @@ def detect_file_type(filepath: Path) -> Optional[str]:
                     f.seek(offset)
                     header = f.read(len(magic))
                     if header == magic:
-                        return file_type
+                        return (file_type, bytes_to_ascii(magic), bytes_to_xxd(magic))
     except (IOError, OSError):
         pass
-    return None
+    return ('unknown', '[unknown]', '')
 
 
 def is_extension_match(detected_type: str, file_extension: str) -> bool:
@@ -113,6 +126,11 @@ def main():
         help='Recursively scan subdirectories'
     )
     parser.add_argument(
+        '-b', '--bytes',
+        action='store_true',
+        help='Show magic bytes in xxd format'
+    )
+    parser.add_argument(
         '--deep',
         action='store_true',
         help='Scan all files (including those with unknown extensions) for magic bytes'
@@ -139,14 +157,11 @@ def main():
         if not args.deep and filepath.suffix.lower() not in image_extensions:
             continue
 
-        detected_type = detect_file_type(filepath)
-        if detected_type is None:
-            continue
-
+        detected_type, magic_ascii, magic_xxd = detect_file_type(filepath)
         is_match = is_extension_match(detected_type, filepath.suffix)
-        all_files.append((filepath, detected_type, is_match))
+        all_files.append((filepath, detected_type, magic_ascii, magic_xxd, is_match))
 
-        if not is_match:
+        if not is_match and detected_type != 'unknown':
             incorrect_files.append((filepath, detected_type))
 
     # Handle renaming
@@ -163,9 +178,64 @@ def main():
 
     # Display results
     if args.all and all_files:
-        for filepath, detected_type, is_match in all_files:
-            status = "✓" if is_match else "✗"
-            print(f"{status} {filepath} [{detected_type}]")
+        if args.bytes:
+            # Calculate column widths with magic bytes
+            type_width = max(len(t) for _, t, _, _, _ in all_files) if all_files else 8
+            ext_width = max(len(f.suffix) for f, _, _, _, _ in all_files) if all_files else 10
+
+            # Calculate xxd column width by formatting each entry and finding max
+            formatted_xxds = []
+            max_hex_width = 0
+            for _, _, _, xxd, _ in all_files:
+                if '  ' in xxd:
+                    hex_part, ascii_part = xxd.split('  ', 1)
+                    max_hex_width = max(max_hex_width, len(hex_part))
+                    formatted_xxds.append((hex_part, ascii_part))
+                else:
+                    formatted_xxds.append((xxd, ''))
+
+            xxd_width = max_hex_width + 2 + max(len(a) for _, a in formatted_xxds) if formatted_xxds else 10
+            type_width = max(type_width, len("Type"))
+            ext_width = max(ext_width, len("Extension"))
+
+            # Print header with proper alignment
+            hex_part_header = "Hex".ljust(max_hex_width)
+            ascii_part_header = "ASCII"
+            xxd_header = f"{hex_part_header}  {ascii_part_header}".ljust(xxd_width)
+            print(f"{'Type':<{type_width}}  {'Extension':<{ext_width}}  {xxd_header}  Filename")
+            print("-" * (type_width + ext_width + xxd_width + 35))
+
+            # Print rows
+            for filepath, detected_type, magic_ascii, magic_xxd, is_match in all_files:
+                status = "✓" if is_match else "✗"
+                ext = filepath.suffix or "(no ext)"
+                # Format xxd with proper padding
+                if '  ' in magic_xxd:
+                    hex_part, ascii_part = magic_xxd.split('  ', 1)
+                    padded_xxd = f"{hex_part:<{max_hex_width}}  {ascii_part}".ljust(xxd_width)
+                else:
+                    padded_xxd = magic_xxd.ljust(xxd_width)
+                print(f"{detected_type:<{type_width}}  {ext:<{ext_width}}  {padded_xxd}  {status} {filepath}")
+        else:
+            # Simple format without magic bytes
+            type_width = max(len(t) for _, t, _, _, _ in all_files) if all_files else 8
+            ext_width = max(len(f.suffix) for f, _, _, _, _ in all_files) if all_files else 10
+            type_width = max(type_width, len("Type"))
+            ext_width = max(ext_width, len("Extension"))
+
+            print(f"{'Type':<{type_width}}  {'Extension':<{ext_width}}  Filename")
+            print("-" * (type_width + ext_width + 40))
+
+            for filepath, detected_type, _, _, is_match in all_files:
+                status = "✓" if is_match else "✗"
+                ext = filepath.suffix or "(no ext)"
+                print(f"{detected_type:<{type_width}}  {ext:<{ext_width}}  {status} {filepath}")
+
+        if not incorrect_files:
+            print("\nAll files have correct extensions")
+        else:
+            print(f"\nFound {len(incorrect_files)} file(s) with incorrect extension(s)")
+            print("Use --rename flag to fix these files")
     elif incorrect_files:
         for filepath, detected_type in incorrect_files:
             correct_ext = next(iter(TYPE_TO_EXTENSIONS[detected_type]))
