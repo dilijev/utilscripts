@@ -51,7 +51,7 @@ def rename_with_date(file_path: Path, date_str: str) -> str:
     return f"{date_str}_{name}{ext}"
 
 
-def process_directory(directory: str, rename_files: bool = False, dry_run: bool = False) -> None:
+def process_directory(directory: str, rename_files: bool = False, dry_run: bool = False, recursive: bool = False) -> None:
     """Process images in directory, organizing by date hierarchy."""
     base_path = Path(directory).resolve()
 
@@ -59,8 +59,12 @@ def process_directory(directory: str, rename_files: bool = False, dry_run: bool 
         print(f"Error: {directory} is not a valid directory")
         return
 
-    image_files = [f for f in base_path.iterdir()
-                   if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
+    if recursive:
+        image_files = [f for f in base_path.rglob('*')
+                       if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
+    else:
+        image_files = [f for f in base_path.iterdir()
+                       if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
 
     if not image_files:
         print(f"No image files found in {directory}")
@@ -69,6 +73,7 @@ def process_directory(directory: str, rename_files: bool = False, dry_run: bool 
     print(f"Found {len(image_files)} image(s) to process")
 
     for file_path in image_files:
+        source_relative = file_path.relative_to(base_path)
         date_str = get_date_string(file_path)
         target_dir = get_target_directory(base_path, date_str)
 
@@ -76,10 +81,12 @@ def process_directory(directory: str, rename_files: bool = False, dry_run: bool 
         target_path = target_dir / new_filename
 
         if dry_run:
-            print(f"[DRY RUN] {file_path.name} -> {target_dir.relative_to(base_path)}/{new_filename}")
+            display_path = target_dir.relative_to(base_path) / new_filename
+            print(f"[DRY RUN] {source_relative} -> {display_path}")
         else:
             shutil.move(str(file_path), str(target_path))
-            print(f"Moved {file_path.name} to {target_dir.relative_to(base_path)}/{new_filename}")
+            display_path = target_dir.relative_to(base_path) / new_filename
+            print(f"Moved {source_relative} to {display_path}")
 
 
 def main():
@@ -96,13 +103,18 @@ def main():
         help='Rename files to include date in format YYYYMMDD_originalname'
     )
     parser.add_argument(
+        '-R', '--recursive',
+        action='store_true',
+        help='Recursively process all subdirectories'
+    )
+    parser.add_argument(
         '--dry-run',
         action='store_true',
         help='Show what would be done without making changes'
     )
 
     args = parser.parse_args()
-    process_directory(args.directory, rename_files=args.rename, dry_run=args.dry_run)
+    process_directory(args.directory, rename_files=args.rename, dry_run=args.dry_run, recursive=args.recursive)
 
 
 if __name__ == '__main__':
