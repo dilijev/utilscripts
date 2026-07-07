@@ -9,3 +9,5 @@
 out/
 *.exe
 *.log
+mirror-move/test/machine1/
+mirror-move/test/machine2/
